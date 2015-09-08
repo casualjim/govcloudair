@@ -399,6 +399,21 @@ func decodeBody(resp *http.Response, out interface{}) error {
 	return nil
 }
 
+// use map as a set, this avoids long if conditions
+var errsToParse = map[int]struct{}{
+	400: struct{}{},
+	401: struct{}{},
+	403: struct{}{},
+	404: struct{}{},
+	405: struct{}{},
+	406: struct{}{},
+	409: struct{}{},
+	415: struct{}{},
+	500: struct{}{},
+	503: struct{}{},
+	504: struct{}{},
+}
+
 // checkResp wraps http.Client.Do() and verifies the request, if status code
 // is 2XX it passes back the response, if it's a known invalid status code it
 // parses the resultant XML error and returns a descriptive error, if the
@@ -408,15 +423,16 @@ func checkResp(resp *http.Response, err error) (*http.Response, error) {
 		return resp, err
 	}
 
-	switch i := resp.StatusCode; {
-	// Valid request, return the response.
-	case i == 200 || i == 201 || i == 202 || i == 204:
+	// Valid request, return the response. Yay for types!
+	if resp.StatusCode/100 == 2 {
 		return resp, nil
-	// Invalid request, parse the XML error returned and return it.
-	case i == 400 || i == 401 || i == 403 || i == 404 || i == 405 || i == 406 || i == 409 || i == 415 || i == 500 || i == 503 || i == 504:
-		return nil, parseErr(resp)
-	// Unhandled response.
-	default:
-		return nil, fmt.Errorf("unhandled API response, please report this issue, status code: %s", resp.Status)
 	}
+
+	// Invalid request, parse the XML error returned and return it.
+	if _, ok := errsToParse[resp.StatusCode]; ok {
+		return nil, parseErr(resp)
+	}
+
+	// Unhandled response.
+	return nil, fmt.Errorf("unhandled API response, please report this issue, status code: %s", resp.Status)
 }
