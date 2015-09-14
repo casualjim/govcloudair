@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ * ***********************************************************
+  ~ *  Copyright (c) 2014 VMware, Inc.  All rights reserved.
+  ~ * ***********************************************************
+  -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:meta="http://www.vmware.com/vchs/meta"
+           xmlns:instance="http://www.vmware.com/vchs/sc/instance/v1"
+           xmlns:common="http://www.vmware.com/vchs/sc/common/v1"
+           targetNamespace="http://www.vmware.com/vchs/sc/instance/v1" elementFormDefault="qualified" version="1.0">
+
+    <xs:import schemaLocation="../common/resource.xsd" namespace="http://www.vmware.com/vchs/sc/common/v1"/>
+    <xs:import schemaLocation="../common/simpleTypes.xsd" namespace="http://www.vmware.com/vchs/sc/common/v1"/>
+    <xs:import schemaLocation="../common/complexTypes.xsd" namespace="http://www.vmware.com/vchs/sc/common/v1"/>
+
+    <xs:annotation>
+        <xs:documentation xml:lang="en">
+            Schema for the vCHS instance related meta data.
+        </xs:documentation>
+    </xs:annotation>
+
+
+    <xs:element name="InstanceSpecParams" type="instance:InstanceSpecParamsType"/>
+    <xs:complexType name="InstanceSpecParamsType">
+        <xs:annotation>
+            <xs:appinfo>
+                <meta:content-type>application/xml;application/json;class=vnd.vmware.vchs.sc.instance</meta:content-type>
+            </xs:appinfo>
+            <xs:documentation source="since">5.7</xs:documentation>
+            <xs:documentation xml:lang="en">
+                Input parameters for creation of instance. Requires details like service group id,
+                plan id, name of the instance, etc.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="name" type="common:NonEmptyString">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">always</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        The name of the instance.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="description" type="common:NonEmptyString" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">always</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        The description of the instance.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="planId" type="common:NonEmptyString">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">always</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        The plan id to be used to create the instance.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="serviceGroupId" type="common:NonEmptyString">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">always</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        The service group id to be used to create the instance.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="instanceSpec" type="common:NonEmptyString" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">always</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        Custom spec values, used to create this instance.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="instanceDefaultSpec" type="common:NonEmptyString" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">always</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        The default spec values(offered by the plan), used to create this instance.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="bindingSpec" type="common:NonEmptyString" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">always</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        Service specific parameters, to create a binding, for the instance.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="Instance" type="instance:InstanceType"/>
+    <xs:complexType name="InstanceType">
+        <xs:annotation>
+            <xs:appinfo>
+                <meta:content-type>application/xml;application/json</meta:content-type>
+            </xs:appinfo>
+            <xs:documentation source="since">5.7</xs:documentation>
+            <xs:documentation xml:lang="en">
+                Provides the details of the instance. Includes details like id of the instance,
+                Api endpoint of the instance, service group id of the instance, service plan id used
+                to create the instance, etc.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="common:ResourceType">
+                <xs:sequence>
+                    <xs:element name="description" type="common:NonEmptyString" minOccurs="0">
+                        <xs:annotation>
+                            <xs:documentation source="since">5.7</xs:documentation>
+                            <xs:documentation source="modifiable">always</xs:documentation>
+                            <xs:documentation xml:lang="en">
+                                The description of the instance.
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                    <xs:element name="region" type="common:NonEmptyString">
+                        <xs:annotation>
+                            <xs:documentation source="since">5.7</xs:documentation>
+                            <xs:documentation source="modifiable">none</xs:documentation>
+                            <xs:documentation xml:lang="en">
+                                The region in which the instance is present.
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                    <xs:element name="instanceVersion" type="common:NonEmptyString" minOccurs="0">
+                        <xs:annotation>
+                            <xs:documentation source="since">5.7</xs:documentation>
+                            <xs:documentation source="modifiable">none</xs:documentation>
+                            <xs:documentation xml:lang="en">
+                                The version of the instance.
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                    <xs:element name="planId" type="common:NonEmptyString">
+                        <xs:annotation>
+                            <xs:documentation source="since">5.7</xs:documentation>
+                            <xs:documentation source="modifiable">none</xs:documentation>
+                            <xs:documentation xml:lang="en">
+                                The plan id with which the instance is created.
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                    <xs:element name="serviceGroupId" type="common:NonEmptyString">
+                        <xs:annotation>
+                            <xs:documentation source="since">5.7</xs:documentation>
+                            <xs:documentation source="modifiable">none</xs:documentation>
+                            <xs:documentation xml:lang="en">
+                                The service group id with which the instance is created.
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                    <xs:element name="apiUrl" type="xs:anyURI">
+                        <xs:annotation>
+                            <xs:documentation source="since">5.7</xs:documentation>
+                            <xs:documentation source="modifiable">none</xs:documentation>
+                            <xs:documentation xml:lang="en">
+                                The apiUrl endpoint of the instance.
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                    <xs:element name="dashboardUrl" type="xs:anyURI">
+                        <xs:annotation>
+                            <xs:documentation source="since">5.7</xs:documentation>
+                            <xs:documentation source="modifiable">none</xs:documentation>
+                            <xs:documentation xml:lang="en">
+                                The dashboardurl of the instance.
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                    <xs:element name="instanceAttributes" type="common:NonEmptyString" minOccurs="0">
+                        <xs:annotation>
+                            <xs:documentation source="since">5.7</xs:documentation>
+                            <xs:documentation source="modifiable">none</xs:documentation>
+                            <xs:documentation xml:lang="en">
+                                This is an optional field used by service to provide additional information
+                                about the instance.
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:element name="InstanceList" type="instance:InstanceListType"/>
+    <xs:complexType name="InstanceListType">
+        <xs:annotation>
+            <xs:appinfo>
+                <meta:content-type>application/xml;application/json</meta:content-type>
+            </xs:appinfo>
+            <xs:documentation source="since">5.7</xs:documentation>
+            <xs:documentation xml:lang="en">
+                Represents list of vCHS instances.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="instances" type="instance:InstanceType" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">none</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        The list of instances.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+</xs:schema>

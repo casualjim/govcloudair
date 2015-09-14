@@ -1,0 +1,87 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns="http://www.vmware.com/vchs/v5.6"
+           xmlns:meta="http://www.vmware.com/vchs/meta"
+           targetNamespace="http://www.vmware.com/vchs/v5.6" elementFormDefault="qualified" version="1.0">
+
+    <xs:include schemaLocation="base.xsd"/>
+
+    <xs:annotation>
+        <xs:documentation xml:lang="en">
+            Schema for the VCHS Services meta data.
+        </xs:documentation>
+    </xs:annotation>
+
+    <xs:element name="Services" type="ServiceListType"/>
+    <xs:complexType name="ServiceListType">
+        <xs:annotation>
+            <xs:appinfo>
+                <meta:content-type>application/xml;class=vnd.vmware.vchs.servicelist</meta:content-type>
+            </xs:appinfo>
+            <xs:documentation source="since">5.6</xs:documentation>
+            <xs:documentation xml:lang="en">
+                Represents a list of VCHS Services.
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:complexContent>
+            <xs:extension base="EntityType">
+                <xs:sequence>
+                    <xs:element name="Service" type="ServiceType" minOccurs="0" maxOccurs="unbounded">
+                        <xs:annotation>
+                            <xs:documentation source="since">5.6</xs:documentation>
+                            <xs:documentation xml:lang="en">
+                                Represents a reference to VCHS service meta-data.
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+
+    <xs:complexType name="ServiceType">
+        <xs:annotation>
+            <xs:appinfo>
+                <meta:content-type>application/xml;class=vnd.vmware.vchs.service</meta:content-type>
+            </xs:appinfo>
+            <xs:documentation source="since">5.6</xs:documentation>
+            <xs:documentation xml:lang="en">
+                Represents a reference to VCHS service meta-data.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="ReferenceType">
+                <xs:attribute name="serviceType" type="xs:string" use="required">
+                    <xs:annotation>
+                        <xs:documentation source="since">5.6</xs:documentation>
+                        <xs:documentation xml:lang="en">
+                            Defines the type of service this object refers to. Possible values are:
+                            compute:dedicatedcloud : reference to an instance of a Dedicated Cloud.
+                            compute:vpc: reference to a Virtual Private Cloud.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+
+                <xs:attribute name="serviceId" type="xs:string" use="optional">
+                    <xs:annotation>
+                        <xs:documentation source="since">5.6</xs:documentation>
+                        <xs:documentation xml:lang="en">
+                            Provides the Service ID, assigned by VCHS for this service.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+
+                <xs:attribute name="region" type="xs:string" use="optional">
+                    <xs:annotation>
+                        <xs:documentation source="since">5.6</xs:documentation>
+                        <xs:documentation xml:lang="en">
+                            Provides the geographical region name for this service.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+</xs:schema>

@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:meta="http://www.vmware.com/vchs/meta"
+           xmlns:service="http://www.vmware.com/vchs/sc/service/v1"
+           xmlns:common="http://www.vmware.com/vchs/sc/common/v1"
+           targetNamespace="http://www.vmware.com/vchs/sc/service/v1" elementFormDefault="qualified" version="1.0">
+
+    <xs:import schemaLocation="../common/resource.xsd" namespace="http://www.vmware.com/vchs/sc/common/v1"/>
+    <xs:import schemaLocation="../common/simpleTypes.xsd" namespace="http://www.vmware.com/vchs/sc/common/v1"/>
+    <xs:import schemaLocation="../common/complexTypes.xsd" namespace="http://www.vmware.com/vchs/sc/common/v1"/>
+
+    <xs:annotation>
+        <xs:documentation xml:lang="en">
+            Schema for the vCHS Plan related meta data.
+        </xs:documentation>
+    </xs:annotation>
+
+
+    <xs:element name="PlanPolicy" type="service:PlanPolicyType"/>
+    <xs:complexType name="PlanPolicyType">
+        <xs:annotation>
+            <xs:documentation source="since">5.7</xs:documentation>
+            <xs:documentation xml:lang="en">
+                Provides the policy of a plan.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="canCreateInstance" type="xs:boolean">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">none</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        Specifies whether an instance can be created for this plan.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="canCreateBinding" type="xs:boolean">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">none</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        Specifies whether a binding can be created for instances of this plan.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="maxInstanceCount" type="xs:int">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">none</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        Specifies the maximum number of instances allowed for this plan.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="Plan" type="service:PlanType"/>
+    <xs:complexType name="PlanType">
+        <xs:annotation>
+            <xs:appinfo>
+                <meta:content-type>application/xml;application/json</meta:content-type>
+            </xs:appinfo>
+            <xs:documentation source="since">5.7</xs:documentation>
+            <xs:documentation xml:lang="en">
+                Provides the details of a plan. Includes details like region of the
+                plan, service offering the plan, version of the plan, id of the Plan,
+                etc., The details of the plan will be used for creation of an instance.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="common:ResourceType">
+                <xs:sequence>
+                    <xs:element name="region" type="common:NonEmptyString">
+                        <xs:annotation>
+                            <xs:documentation source="since">5.7</xs:documentation>
+                            <xs:documentation source="modifiable">none</xs:documentation>
+                            <xs:documentation xml:lang="en">
+                                The region in which the plan is offered.
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                    <xs:element name="serviceName" type="common:NonEmptyString">
+                        <xs:annotation>
+                            <xs:documentation source="since">5.7</xs:documentation>
+                            <xs:documentation source="modifiable">none</xs:documentation>
+                            <xs:documentation xml:lang="en">
+                                The name of the service offering the plan.
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                    <xs:element name="description" type="common:NonEmptyString" minOccurs="0">
+                        <xs:annotation>
+                            <xs:documentation source="since">5.7</xs:documentation>
+                            <xs:documentation source="modifiable">none</xs:documentation>
+                            <xs:documentation xml:lang="en">
+                                The description about the plan.
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                    <xs:element name="planVersion" type="common:NonEmptyString">
+                        <xs:annotation>
+                            <xs:documentation source="since">5.7</xs:documentation>
+                            <xs:documentation source="modifiable">none</xs:documentation>
+                            <xs:documentation xml:lang="en">
+                                The version of the plan offered.
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                    <xs:element name="planAttributes" type="common:NonEmptyString" minOccurs="0">
+                        <xs:annotation>
+                            <xs:documentation source="since">5.7</xs:documentation>
+                            <xs:documentation source="modifiable">none</xs:documentation>
+                            <xs:documentation xml:lang="en">
+                                This is an optional field used by service to provide additional information
+                                about the plan.
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                    <xs:element name="instanceSpec" type="common:NonEmptyString" minOccurs="0">
+                        <xs:annotation>
+                            <xs:documentation source="since">5.7</xs:documentation>
+                            <xs:documentation source="modifiable">none</xs:documentation>
+                            <xs:documentation xml:lang="en">
+                                Custom spec values, used by the service, to create an instance for this plan.
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                    <xs:element name="instanceDefaultSpec" type="common:NonEmptyString" minOccurs="0">
+                        <xs:annotation>
+                            <xs:documentation source="since">5.7</xs:documentation>
+                            <xs:documentation source="modifiable">none</xs:documentation>
+                            <xs:documentation xml:lang="en">
+                                The default spec values, that will be used, while creating an instance for this
+                                plan.
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                    <xs:element name="bindingSpec" type="common:NonEmptyString" minOccurs="0">
+                        <xs:annotation>
+                            <xs:documentation source="since">5.7</xs:documentation>
+                            <xs:documentation source="modifiable">none</xs:documentation>
+                            <xs:documentation xml:lang="en">
+                                Service specific parameters, to create a binding, for an instance of this plan.
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                    <xs:element name="planPolicy" type="service:PlanPolicyType" minOccurs="0">
+                        <xs:annotation>
+                            <xs:documentation source="since">5.7</xs:documentation>
+                            <xs:documentation source="modifiable">none</xs:documentation>
+                            <xs:documentation xml:lang="en">
+                                Specifies plan policies.
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:element name="PlanList" type="service:PlanListType"/>
+    <xs:complexType name="PlanListType">
+        <xs:annotation>
+            <xs:appinfo>
+                <meta:content-type>application/xml;application/json</meta:content-type>
+            </xs:appinfo>
+            <xs:documentation source="since">5.7</xs:documentation>
+            <xs:documentation xml:lang="en">
+                Represents a list of vCHS plans.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="plans" type="service:PlanType" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">none</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        The list of plans.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+</xs:schema>

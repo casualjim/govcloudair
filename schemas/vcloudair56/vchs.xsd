@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ * ***********************************************************
+  ~ *  Copyright (c) 2013 VMware, Inc.  All rights reserved.
+  ~ * ***********************************************************
+  -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns="http://www.vmware.com/vchs/v5.6"
+           xmlns:meta="http://www.vmware.com/vchs/meta"
+           targetNamespace="http://www.vmware.com/vchs/v5.6" elementFormDefault="qualified" version="1.0">
+
+    <xs:include schemaLocation="base.xsd"/>
+
+    <xs:annotation>
+        <xs:documentation xml:lang="en">
+            Schema for the VCHS compute related meta data.
+        </xs:documentation>
+    </xs:annotation>
+
+    <xs:element name="Compute" type="ComputeType"/>
+    <xs:complexType name="ComputeType">
+        <xs:annotation>
+            <xs:appinfo>
+                <meta:content-type>application/xml;class=vnd.vmware.vchs.compute</meta:content-type>
+            </xs:appinfo>
+            <xs:documentation source="since">5.6</xs:documentation>
+            <xs:documentation xml:lang="en">
+                Provides the high level view of compute resource services, including providing the VDCs within this compute resource.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="EntityType">
+                <xs:sequence>
+                    <xs:element name="VdcRef" type="VdcReferenceType" minOccurs="0" maxOccurs="unbounded">
+                        <xs:annotation>
+                            <xs:documentation source="since">5.6</xs:documentation>
+                            <xs:documentation xml:lang="en">
+                                The list of VDCs within this compute resource.
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                </xs:sequence>
+                <xs:attribute name="serviceType" type="xs:string" use="required">
+                    <xs:annotation>
+                        <xs:documentation source="since">5.6</xs:documentation>
+                        <xs:documentation xml:lang="en">
+                            Defines the type of this compute resource. Possible values are:
+                            compute:dedicatedcloud : This object represents a "Dedicated Cloud".
+                            compute:vpc : This object represents a "Virtual Private Cloud".
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="serviceId" type="xs:string" use="optional">
+                    <xs:annotation>
+                        <xs:documentation source="since">5.6</xs:documentation>
+                        <xs:documentation xml:lang="en">
+                            Provides the Service ID, assigned by VCHS for this compute service.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:element name="VdcRef" type="VdcReferenceType"/>
+    <xs:complexType name="VdcReferenceType">
+
+        <xs:annotation>
+            <xs:appinfo>
+                <meta:content-type>application/xml;class=vnd.vmware.vchs.vdcref</meta:content-type>
+            </xs:appinfo>
+            <xs:documentation source="since">5.6</xs:documentation>
+            <xs:documentation xml:lang="en">
+                Represents a reference to a VDC representation on VCHS.
+                Contains a Link to retreive a session for each VDC.
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:complexContent>
+            <xs:extension base="ReferenceType">
+                <xs:sequence>
+                    <xs:element name="Link" type="LinkType" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+                <xs:attribute name="status" type="xs:string" use="optional">
+                    <xs:annotation>
+                        <xs:documentation source="since">5.6</xs:documentation>
+                        <xs:documentation xml:lang="en">
+                            Provides the vCHS status of the Vdc.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:element name="VCloudSession" type="VCloudSessionType"/>
+    <xs:complexType name="VCloudSessionType">
+
+        <xs:annotation>
+            <xs:appinfo>
+                <meta:content-type>application/xml;class=vnd.vmware.vchs.vcloudsession</meta:content-type>
+            </xs:appinfo>
+            <xs:documentation source="since">5.6</xs:documentation>
+            <xs:documentation xml:lang="en">
+                Represents a session for a VDC on VCloud.
+                Includes a VdcLink to the VDC on VCloud, and the session authorization token.
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:complexContent>
+            <xs:extension base="EntityType">
+                <xs:sequence>
+                    <xs:element name="VdcLink" type="VdcLinkType" minOccurs="1" maxOccurs="1"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="VdcLinkType">
+        <xs:complexContent>
+            <xs:extension base="LinkType">
+                <xs:attribute name="authorizationHeader" type="xs:string" use="required">
+                    <xs:annotation>
+                        <xs:documentation source="modifiable">none</xs:documentation>
+                        <xs:documentation source="since">5.6</xs:documentation>
+                        <xs:documentation xml:lang="en">
+                            The HTTP header name for the VCloud authorization token.
+                        </xs:documentation>
+                        <xs:documentation source="required">true</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="authorizationToken" type="xs:string" use="required">
+                    <xs:annotation>
+                        <xs:documentation source="modifiable">none</xs:documentation>
+                        <xs:documentation source="since">5.6</xs:documentation>
+                        <xs:documentation xml:lang="en">
+                            The value of the VCloud authorization token.
+                            When accessing the VCloud VDC, the AuthorizationHeader and AuthorizationToken must be used in the HTTP headers that are sent with the request.
+                            This authorization token is only applicable for this VDC.
+                        </xs:documentation>
+                        <xs:documentation source="required">true</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+</xs:schema>

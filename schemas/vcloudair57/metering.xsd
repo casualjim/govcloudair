@@ -1,0 +1,940 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ * ***********************************************************
+  ~ *  Copyright (c) 2012 VMware, Inc.  All rights reserved.
+  ~ * ***********************************************************
+  -->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns="http://www.vmware.com/vchs/vms/billabledata/v1"
+           xmlns:meta="http://www.vmware.com/vchs/meta"
+           targetNamespace="http://www.vmware.com/vchs/vms/billabledata/v1"
+           elementFormDefault="qualified" version="1.0">
+
+    <xs:annotation>
+        <xs:documentation source="since">5.7</xs:documentation>
+        <xs:documentation xml:lang="en">
+            Schema for the vCHS metering related data.
+        </xs:documentation>
+    </xs:annotation>
+
+    <xs:element name="BilledUsage" type="BilledUsageType">
+        <xs:annotation>
+            <xs:appinfo>
+                <meta:content-type>
+                    application/xml;application/json;class=com.vmware.vchs.billing.billedUsage
+                </meta:content-type>
+            </xs:appinfo>
+            <xs:documentation source="since">5.7</xs:documentation>
+            <xs:documentation xml:lang="en">
+                Applicable for billed usage only.
+                Returns :
+                entity details,
+                bill duration,
+                applicable currency,
+                metric name,
+                usage units,
+                usage amount,
+                rate per unit consumed
+                and calculated total cost
+                for a given bill month.
+            </xs:documentation>
+        </xs:annotation>
+    </xs:element>
+
+    <xs:complexType name="BilledUsageType">
+        <xs:annotation>
+            <xs:appinfo>
+                <meta:content-type>
+                    application/xml;application/json;class=com.vmware.vchs.billing.billedUsage
+                </meta:content-type>
+            </xs:appinfo>
+            <xs:documentation source="since">5.7</xs:documentation>
+            <xs:documentation xml:lang="en">
+                Applicable for billed usage only.
+                Returns :
+                entity details,
+                bill duration,
+                applicable currency,
+                metric name,
+                usage units,
+                usage amount,
+                rate per unit consumed
+                and calculated total cost
+                for a given bill month.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="Entity" type="EntityType" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">always</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        Represents the billed entity object.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="month" type="xs:int" use="optional">
+            <xs:annotation>
+                <xs:documentation source="since">5.7</xs:documentation>
+                <xs:documentation source="modifiable">always</xs:documentation>
+                <xs:documentation xml:lang="en">
+                    The billing month for billed usage in 'm' format i.e. One-digit month for months below 10.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="year" type="xs:int" use="optional">
+            <xs:annotation>
+                <xs:documentation source="since">5.7</xs:documentation>
+                <xs:documentation source="modifiable">always</xs:documentation>
+                <xs:documentation xml:lang="en">
+                    The billing year for billed usage in 'yyyy' format i.e. Four-digit year format.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="startTime" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation source="since">5.7</xs:documentation>
+                <xs:documentation source="modifiable">always</xs:documentation>
+                <xs:documentation xml:lang="en">
+                    The start time of billing month in ISO 8601 UTC format, e.g. 2014-02-13T10:00:00.000Z. Billed usage is collected from this time onwards.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="endTime" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation source="since">5.7</xs:documentation>
+                <xs:documentation source="modifiable">always</xs:documentation>
+                <xs:documentation xml:lang="en">
+                    The end time of billing month in ISO 8601 UTC format, e.g. 2014-02-13T11:00:00.000Z. Billed usage is collected till this time.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:element name="BillableUsage" type="BillableUsageType">
+        <xs:annotation>
+            <xs:appinfo>
+                <meta:content-type>
+                    application/xml;application/json;class=com.vmware.vchs.metering.billableUsage
+                </meta:content-type>
+            </xs:appinfo>
+            <xs:documentation source="since">5.7</xs:documentation>
+            <xs:documentation xml:lang="en">
+                Applicable for current/unbilled usage only.
+                Returns :
+                entity details,
+                applicable currency,
+                metric name,
+                usage units,
+                usage amount,
+                rate per unit consumed
+                and calculated total cost.
+                for a given date range (optional).
+            </xs:documentation>
+        </xs:annotation>
+    </xs:element>
+
+    <xs:complexType name="BillableUsageType">
+        <xs:annotation>
+            <xs:appinfo>
+                <meta:content-type>
+                    application/xml;application/json;class=com.vmware.vchs.metering.billableUsage
+                </meta:content-type>
+            </xs:appinfo>
+            <xs:documentation source="since">5.7</xs:documentation>
+            <xs:documentation xml:lang="en">
+                Applicable for current/unbilled usage only.
+                Returns :
+                entity details,
+                applicable currency,
+                metric name,
+                usage units,
+                usage amount,
+                rate per unit consumed
+                and calculated total cost.
+                for a given date range (optional).
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="Entity" type="EntityType" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">always</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        Represents the current/unbilled entity object.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="startTime" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation source="since">5.7</xs:documentation>
+                <xs:documentation source="modifiable">always</xs:documentation>
+                <xs:documentation xml:lang="en">
+                    Start time for current/unbilled usage in ISO 8601 UTC format, e.g. 2014-02-13T10:00:00.000Z; Usage is collected from this time onwards.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="endTime" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation source="since">5.7</xs:documentation>
+                <xs:documentation source="modifiable">always</xs:documentation>
+                <xs:documentation xml:lang="en">
+                    End time for current/unbilled usage in ISO 8601 UTC format, e.g. 2014-02-13T11:00:00.000Z; Usage is collected till this time.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="EntityType">
+        <xs:annotation>
+            <xs:documentation source="since">5.7</xs:documentation>
+            <xs:documentation source="modifiable">always</xs:documentation>
+            <xs:documentation xml:lang="en">
+                Represents the billed/unbilled entity object.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="BillableList" type="BillableListType" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">always</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        Contains metering data for different metrics.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation source="since">5.7</xs:documentation>
+                <xs:documentation source="modifiable">none</xs:documentation>
+                <xs:documentation xml:lang="en">
+                    The id of the entity.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="name" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation source="since">5.7</xs:documentation>
+                <xs:documentation source="modifiable">always</xs:documentation>
+                <xs:documentation xml:lang="en">
+                    The name of the entity.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="entityType" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation source="since">5.7</xs:documentation>
+                <xs:documentation source="modifiable">none</xs:documentation>
+                <xs:documentation xml:lang="en">
+                    The entity type e.g. vm, vdc or serviceInstance.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="BillableListType">
+        <xs:annotation>
+            <xs:documentation source="since">5.7</xs:documentation>
+            <xs:documentation source="modifiable">always</xs:documentation>
+            <xs:documentation xml:lang="en">
+                Contains metering data for different metrics.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="Billable" type="BillableType" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">always</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        Contains metering data for a given metric.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="BillableType">
+        <xs:annotation>
+            <xs:documentation source="since">5.7</xs:documentation>
+            <xs:documentation source="modifiable">always</xs:documentation>
+            <xs:documentation xml:lang="en">
+                Contains metering data for a given metric.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="Name" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">always</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        The name of the metric.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Usage" type="xs:decimal">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">always</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        The usage of the metric.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Unit" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">none</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        The unit of the metric.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Rate" type="xs:decimal">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">always</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        The applicable rate as per usage consumption.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Cost" type="xs:decimal">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">always</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        Cost associated with usage consumption.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Currency" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">none</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        The billing currency, will be in ISO 4217 code e.g. USD, GBP, etc.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Billed/Billable Costs -->
+    <xs:element name="BilledCosts" type="BilledCostsType">
+        <xs:annotation>
+            <xs:appinfo>
+                <meta:content-type>
+                    application/xml;application/json;class=com.vmware.vchs.billing.billedCosts
+                </meta:content-type>
+            </xs:appinfo>
+            <xs:documentation source="since">5.7</xs:documentation>
+            <xs:documentation xml:lang="en">
+                List cost items associated with service group for a given billing month. Cost items
+                are shown only for months for which bill is generated. The following cost items
+                are supported - Support Cost and Service Credit.
+            </xs:documentation>
+        </xs:annotation>
+    </xs:element>
+
+    <xs:element name="BillableCosts" type="BillableCostsType">
+        <xs:annotation>
+            <xs:appinfo>
+                <meta:content-type>
+                    application/xml;application/json;class=com.vmware.vchs.metering.billableCosts
+                </meta:content-type>
+            </xs:appinfo>
+            <xs:documentation source="since">5.7</xs:documentation>
+            <xs:documentation xml:lang="en">
+                Represent current/unbilled value of cost items associated with the service-group.
+                Only those cost items are listed which are available after last bill cut/generation date.
+                The following cost items are supported - Support Cost and Service Credit.
+            </xs:documentation>
+        </xs:annotation>
+    </xs:element>
+
+    <xs:complexType name="BilledCostsType">
+        <xs:annotation>
+            <xs:appinfo>
+                <meta:content-type>
+                    application/xml;application/json;class=com.vmware.vchs.billing.billedCosts
+                </meta:content-type>
+            </xs:appinfo>
+            <xs:documentation source="since">5.7</xs:documentation>
+            <xs:documentation xml:lang="en">
+                List cost items associated with service group for a given billing month. Cost items
+                are shown only for months for which bill is generated. The following cost items
+                are supported - Support Cost and Service Credit.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="Cost" type="CostType" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">always</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        Represents the cost item
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Currency" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">none</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        The billing currency, will be in ISO 4217 code e.g. USD, GBP, etc.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="month" type="xs:int" use="optional">
+            <xs:annotation>
+                <xs:documentation source="since">5.7</xs:documentation>
+                <xs:documentation source="modifiable">always</xs:documentation>
+                <xs:documentation xml:lang="en">
+                    The billing month for billed cost.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="year" type="xs:int" use="optional">
+            <xs:annotation>
+                <xs:documentation source="since">5.7</xs:documentation>
+                <xs:documentation source="modifiable">always</xs:documentation>
+                <xs:documentation xml:lang="en">
+                    The billing year for billed cost.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="startTime" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation source="since">5.7</xs:documentation>
+                <xs:documentation source="modifiable">always</xs:documentation>
+                <xs:documentation xml:lang="en">
+                    The start time of billing month.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="endTime" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation source="since">5.7</xs:documentation>
+                <xs:documentation source="modifiable">always</xs:documentation>
+                <xs:documentation xml:lang="en">
+                    The end time of billing month.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="BillableCostsType">
+        <xs:annotation>
+            <xs:appinfo>
+                <meta:content-type>
+                    application/xml;application/json;class=com.vmware.vchs.metering.billableCosts
+                </meta:content-type>
+            </xs:appinfo>
+            <xs:documentation source="since">5.7</xs:documentation>
+            <xs:documentation xml:lang="en">
+                Represents current/unbilled value of cost items associated with the service-group.
+                Only those cost items are listed which are available after last bill cut/generation date.
+                The following cost items are supported - Support Cost and Service Credit.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="Cost" type="CostType" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">always</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        Represents the cost item.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Currency" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">none</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        The billing currency, will be in ISO 4217 code e.g. USD, GBP, etc.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="LastUpdateTime" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">always</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        The last update time for cost items.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="CostType">
+        <xs:annotation>
+            <xs:documentation source="since">5.7</xs:documentation>
+            <xs:documentation source="modifiable">always</xs:documentation>
+            <xs:documentation xml:lang="en">
+                Represents the cost item.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="Type" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">none</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        The following cost types are supported - SERVICE_CREDIT and SUPPORT.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Amount" type="xs:decimal">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">always</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        The cost value.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Properties" type="PropertiesType" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">always</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        List of properties associated with billing item.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="PropertiesType">
+        <xs:annotation>
+            <xs:documentation source="since">5.7</xs:documentation>
+            <xs:documentation source="modifiable">always</xs:documentation>
+            <xs:documentation xml:lang="en">
+                List of properties associated with billing item.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="Property" type="PropertyType" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">always</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        Include property details like name and value.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="PropertyType">
+        <xs:annotation>
+            <xs:documentation source="since">5.7</xs:documentation>
+            <xs:documentation source="modifiable">always</xs:documentation>
+            <xs:documentation xml:lang="en">
+                Base type for a single property record, includes details like property name and value.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="name" type="xs:string" use="required"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <!-- Service Group Info -->
+    <xs:element name="ServiceGroups" type="ServiceGroupsType">
+        <xs:annotation>
+            <xs:appinfo>
+                <meta:content-type>
+                    application/xml;application/json;class=com.vmware.vchs.billing.serviceGroups
+                </meta:content-type>
+            </xs:appinfo>
+            <xs:documentation source="since">5.7</xs:documentation>
+            <xs:documentation xml:lang="en">
+                Lists all service-groups for a given company, includes company details and service group list.
+            </xs:documentation>
+        </xs:annotation>
+    </xs:element>
+
+    <xs:complexType name="ServiceGroupsType">
+        <xs:annotation>
+            <xs:appinfo>
+                <meta:content-type>
+                    application/xml;application/json;class=com.vmware.vchs.billing.serviceGroups
+                </meta:content-type>
+            </xs:appinfo>
+            <xs:documentation source="since">5.7</xs:documentation>
+            <xs:documentation xml:lang="en">
+                Lists all service-groups for a given company, includes company details and service group list.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="CompanyId" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">none</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        The id of the company.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="CompanyName" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">none</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        The name of the company.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="ServiceGroupList" type="ServiceGroupListType" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">always</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        Container for service group data.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="ServiceGroupListType">
+        <xs:annotation>
+            <xs:documentation source="since">5.7</xs:documentation>
+            <xs:documentation source="modifiable">always</xs:documentation>
+            <xs:documentation xml:lang="en">
+                Container for service group data.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="ServiceGroup" type="ServiceGroupType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="ServiceGroup" type="ServiceGroupType">
+        <xs:annotation>
+            <xs:appinfo>
+                <meta:content-type>
+                    application/xml;application/json;class=com.vmware.vchs.billing.serviceGroup
+                </meta:content-type>
+            </xs:appinfo>
+            <xs:documentation source="since">5.7</xs:documentation>
+            <xs:documentation source="modifiable">always</xs:documentation>
+            <xs:documentation xml:lang="en">
+                Represents service group data, includes details like service group id, service group display name,
+                billing currency, billing attributes and anniversary dates.
+            </xs:documentation>
+        </xs:annotation>
+    </xs:element>
+
+    <xs:complexType name="ServiceGroupType">
+        <xs:annotation>
+            <xs:appinfo>
+                <meta:content-type>
+                    application/xml;application/json;class=com.vmware.vchs.billing.serviceGroup
+                </meta:content-type>
+            </xs:appinfo>
+            <xs:documentation source="since">5.7</xs:documentation>
+            <xs:documentation source="modifiable">always</xs:documentation>
+            <xs:documentation xml:lang="en">
+                Represents service group data, includes details like service group id, service group display name,
+                billing currency, billing attributes and anniversary dates.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="Id" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">none</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        The id of the service group.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="DisplayName" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">none</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        The display name of the service group.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="BillingCurrency" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">none</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        The billing currency, will be in ISO 4217 code e.g. USD, GBP, etc.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="BillingAttributes" type="BillingAttributesType" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">always</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        Contain list of billing attributes.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="AvailableBills" type="AvailableBillsType" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">always</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        Contain list of available bills.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="BillingAttributesType">
+        <xs:annotation>
+            <xs:documentation source="since">5.7</xs:documentation>
+            <xs:documentation source="modifiable">always</xs:documentation>
+            <xs:documentation xml:lang="en">
+                Contains a list of billing attributes.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="Attribute" type="AttributeType" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">always</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        Contains details of a given attribute. Subtypes define more specific elements.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="AvailableBillsType">
+        <xs:annotation>
+            <xs:documentation source="since">5.7</xs:documentation>
+            <xs:documentation source="modifiable">always</xs:documentation>
+            <xs:documentation xml:lang="en">
+                Contains a list of available bills.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="Bill" type="BillType" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">always</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        Represents bill meta data. Include details like generated bill URI,
+                        billing month and billing year.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="AttributeType">
+        <xs:annotation>
+            <xs:documentation source="since">5.7</xs:documentation>
+            <xs:documentation source="modifiable">always</xs:documentation>
+            <xs:documentation xml:lang="en">
+                Contain details of a given attribute. Subtypes define more specific elements.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="Value" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">always</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        The value of the attribute.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Properties" type="PropertiesType" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">always</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        List of properties associated with the billing item.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation source="since">5.7</xs:documentation>
+                <xs:documentation source="modifiable">always</xs:documentation>
+                <xs:documentation xml:lang="en">
+                    The attribute name.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="BillType">
+        <xs:annotation>
+            <xs:documentation source="since">5.7</xs:documentation>
+            <xs:documentation source="modifiable">always</xs:documentation>
+            <xs:documentation xml:lang="en">
+                Represents bill meta data. Include details like generated bill URI,
+                billing month and billing year.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="Link" type="LinkType" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">none</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        It will contain link details of the generated bill.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="BillingPeriod" type="BillingPeriodType" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">none</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        Represents billing period for a given bill.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="LinkType">
+        <xs:annotation>
+            <xs:documentation source="since">5.7</xs:documentation>
+            <xs:documentation source="modifiable">none</xs:documentation>
+            <xs:documentation xml:lang="en">
+                A reference to an entity or operation associated with the object.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:attribute name="rel" type="xs:string">
+            <xs:annotation>
+                <xs:documentation source="since">5.7</xs:documentation>
+                <xs:documentation source="modifiable">none</xs:documentation>
+                <xs:documentation xml:lang="en">
+                    Defines the relationship of the link to the object that contains it.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="href" type="xs:string">
+            <xs:annotation>
+                <xs:documentation source="since">5.7</xs:documentation>
+                <xs:documentation source="modifiable">none</xs:documentation>
+                <xs:documentation xml:lang="en">
+                    Contains the URI to the entity.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="BillingPeriodType">
+        <xs:annotation>
+            <xs:documentation source="since">5.7</xs:documentation>
+            <xs:documentation source="modifiable">always</xs:documentation>
+            <xs:documentation xml:lang="en">
+                Represents billing period for a given bill.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element  name="Month" type="xs:int">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">always</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        The billing month of the bill in 'm' format i.e. One-digit month for months below 10.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element  name="Year" type="xs:int">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">always</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        The billing year of the bill in 'yyyy' format i.e. Four-digit year format.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element  name="StartDate" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">always</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        The start date of billing month in ISO 8601 UTC format, e.g. 2014-02-13T10:00:00.000Z.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element  name="EndDate" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">always</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        The end date of billing month in ISO 8601 UTC, e.g. 2014-02-13T11:00:00.000Z.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:simpleType name="Duration">
+        <xs:annotation>
+            <xs:documentation source="since">5.7</xs:documentation>
+            <xs:documentation source="modifiable">none</xs:documentation>
+            <xs:documentation xml:lang="en">
+                An enumeration representing the duration, used for listing billable usage.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="BillToDate">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">none</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        Last bill date to current time.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="Level">
+        <xs:annotation>
+            <xs:documentation source="since">5.7</xs:documentation>
+            <xs:documentation source="modifiable">none</xs:documentation>
+            <xs:documentation xml:lang="en">
+                An enumeration representing the level, used for listing l2/serviceInstance billed usage.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="self">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">none</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        List billed usage of a given l2/serviceInstance.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="one">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">none</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        List billed usage of a given l2/serviceInstance and their children.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

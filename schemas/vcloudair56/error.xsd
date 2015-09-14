@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ * ***********************************************************
+  ~ *  Copyright (c) 2012 VMware, Inc.  All rights reserved.
+  ~ * ***********************************************************
+  -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://www.vmware.com/vchs/v5.6"
+          xmlns:meta="http://www.vmware.com/vchs/meta"
+           targetNamespace="http://www.vmware.com/vchs/v5.6" elementFormDefault="qualified" version="1.0">
+
+    <xs:complexType name="ErrorType">
+        <xs:annotation>
+            <xs:appinfo>
+                <meta:content-type>application/xml;class=vnd.vmware.vchs.error</meta:content-type>
+            </xs:appinfo>
+            <xs:documentation source="since">5.6</xs:documentation>
+            <xs:documentation xml:lang="en"> The standard error message type. </xs:documentation>
+        </xs:annotation>
+        <xs:attribute name="message" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation xml:lang="en"> An one line, human-readable message describing the
+                    error that occurred. </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="majorErrorCode" type="xs:int" use="required">
+            <xs:annotation>
+                <xs:documentation xml:lang="en"> The class of the error. Matches the HTTP status
+                    code. </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="minorErrorCode" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation xml:lang="en"> Specific API error code (for example - can indicate
+                    that vApp power on failed by some reason) </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="vendorSpecificErrorCode" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation xml:lang="en"> A vendor/implementation specific error code that
+                    point to specific modules/parts of the code and can make problem diagnostics
+                    easier. </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="stackTrace" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation xml:lang="en"> The stack trace of the exception which when
+                    examined might make problem diagnostics easier. </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+</xs:schema>

@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ * ***********************************************************
+  ~ *  Copyright (c) 2014 VMware, Inc.  All rights reserved.
+  ~ * ***********************************************************
+  -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:meta="http://www.vmware.com/vchs/meta"
+           xmlns:binding="http://www.vmware.com/vchs/sc/binding/v1"
+           xmlns:common="http://www.vmware.com/vchs/sc/common/v1"
+           targetNamespace="http://www.vmware.com/vchs/sc/binding/v1" elementFormDefault="qualified" version="1.0">
+
+    <xs:import schemaLocation="../common/resource.xsd" namespace="http://www.vmware.com/vchs/sc/common/v1"/>
+    <xs:import schemaLocation="../common/simpleTypes.xsd" namespace="http://www.vmware.com/vchs/sc/common/v1"/>
+    <xs:import schemaLocation="../common/complexTypes.xsd" namespace="http://www.vmware.com/vchs/sc/common/v1"/>
+
+    <xs:annotation>
+        <xs:documentation xml:lang="en">
+            Schema for the VCHS Bindings related meta data.
+        </xs:documentation>
+    </xs:annotation>
+
+
+    <xs:element name="BindingSpecParams" type="binding:BindingSpecParamsType"/>
+    <xs:complexType name="BindingSpecParamsType">
+        <xs:annotation>
+            <xs:appinfo>
+                <meta:content-type>application/xml;application/json;class=vnd.vmware.vchs.sc.binding</meta:content-type>
+            </xs:appinfo>
+            <xs:documentation source="since">5.7</xs:documentation>
+            <xs:documentation xml:lang="en">
+                Input parameters for creating a Binding for an instance. Requires details like instanceId, name, bindingspec, etc.,
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="name" type="common:NonEmptyString">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        The name of the Binding.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="description" type="common:NonEmptyString" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        The description about the Binding.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="instanceId" type="common:NonEmptyString">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        The instanceId associated with the Binding.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="bindingSpec" type="binding:BindingSpecType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        Service specific parameters to create a binding.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="Binding" type="binding:BindingType"/>
+    <xs:complexType name="BindingType">
+        <xs:annotation>
+            <xs:appinfo>
+                <meta:content-type>application/xml;application/json</meta:content-type>
+            </xs:appinfo>
+            <xs:documentation source="since">5.7</xs:documentation>
+            <xs:documentation xml:lang="en">
+                Provides the details of Binding. Includes details like bindingid, instanceid, bindingApiUri,
+                bindingAccesskey, etc.,
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="common:ResourceType">
+                <xs:sequence>
+                    <xs:element name="description" type="common:NonEmptyString" minOccurs="0">
+                        <xs:annotation>
+                            <xs:documentation source="since">5.7</xs:documentation>
+                            <xs:documentation xml:lang="en">
+                                The description about the Binding.
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                    <xs:element name="region" type="common:NonEmptyString">
+                        <xs:annotation>
+                            <xs:documentation source="since">5.7</xs:documentation>
+                            <xs:documentation xml:lang="en">
+                                The region of the instance for which the binding is created.
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                    <xs:element name="bindingVersion" type="common:NonEmptyString" minOccurs="0">
+                        <xs:annotation>
+                            <xs:documentation source="since">5.7</xs:documentation>
+                            <xs:documentation xml:lang="en">
+                                The version of the Binding.
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                    <xs:element name="instanceId" type="common:NonEmptyString">
+                        <xs:annotation>
+                            <xs:documentation source="since">5.7</xs:documentation>
+                            <xs:documentation xml:lang="en">
+                                The instanceId associated with the Binding.
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                    <xs:element name="bindingApiUri" type="xs:anyURI" minOccurs="0">
+                        <xs:annotation>
+                            <xs:documentation source="since">5.7</xs:documentation>
+                            <xs:documentation xml:lang="en">
+                                ApiUrl to access the Binding.
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                    <xs:element name="bindingDashboardUri" type="xs:anyURI" minOccurs="0">
+                        <xs:annotation>
+                            <xs:documentation source="since">5.7</xs:documentation>
+                            <xs:documentation xml:lang="en">
+                                The dashboardUrl to access the Binding.
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                    <xs:element name="bindingAccessKey" type="binding:AccessKeyType" minOccurs="0">
+                        <xs:annotation>
+                            <xs:documentation source="since">5.7</xs:documentation>
+                            <xs:documentation xml:lang="en">
+                                BindingAccessKey is created by the external service. Its content representation is
+                                specific to the service
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                 </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:element name="BindingList" type="binding:BindingListType"/>
+    <xs:complexType name="BindingListType">
+        <xs:annotation>
+            <xs:appinfo>
+                <meta:content-type>application/xml;application/json</meta:content-type>
+            </xs:appinfo>
+            <xs:documentation source="since">5.7</xs:documentation>
+            <xs:documentation xml:lang="en">
+                Represents list of VCHS Bindings.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="bindings" type="binding:BindingType" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        The list of Bindings.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="AccessKey" type="binding:AccessKeyType"/>
+        <xs:complexType name="AccessKeyType">
+            <xs:annotation>
+                <xs:appinfo>
+                    <meta:content-type>application/xml;application/json</meta:content-type>
+                </xs:appinfo>
+                <xs:documentation source="since">5.7</xs:documentation>
+                <xs:documentation xml:lang="en">
+                    BindingAccessKey is created by the external service. Its content representation is specific
+                    to the service.
+                </xs:documentation>
+            </xs:annotation>
+            <xs:sequence>
+            <xs:element name="payloadType" type="common:NonEmptyString">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        The datatype fo the Binding access key.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="payloadVersion" type="common:NonEmptyString">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        The version of the the payloadtype.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="payload" type="common:NonEmptyString">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        The actual data of the Accesskey.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+       </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="BindingSpec" type="binding:BindingSpecType"/>
+        <xs:complexType name="BindingSpecType">
+            <xs:annotation>
+                <xs:appinfo>
+                    <meta:content-type>application/xml;application/json</meta:content-type>
+                </xs:appinfo>
+                <xs:documentation source="since">5.7</xs:documentation>
+                <xs:documentation xml:lang="en">
+                    Service specific parameters to create a binding.
+                </xs:documentation>
+            </xs:annotation>
+            <xs:sequence>
+            <xs:element name="payloadType" type="common:NonEmptyString">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        The datatype fo the payload.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="payloadVersion" type="common:NonEmptyString">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        The version of the the payloadtype.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="payload" type="common:NonEmptyString">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        The actual data of the payload.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+       </xs:sequence>
+    </xs:complexType>
+</xs:schema>

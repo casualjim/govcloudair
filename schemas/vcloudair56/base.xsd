@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ * ***********************************************************
+  ~ *  Copyright (c) 2012 VMware, Inc.  All rights reserved.
+  ~ * ***********************************************************
+  -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://www.vmware.com/vchs/v5.6"
+           targetNamespace="http://www.vmware.com/vchs/v5.6" elementFormDefault="qualified" version="1.0">
+
+    <xs:complexType name="EntityType">
+        <xs:annotation>
+            <xs:documentation source="since">5.6</xs:documentation>
+            <xs:documentation xml:lang="en">
+                The base type for all objects in the VCHS model.
+                Has an optional list of links and href and type attributes.
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="Link" type="LinkType" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation source="modifiable">none</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        A reference to an entity or operation associated
+                        with this object.
+                    </xs:documentation>
+                    <xs:documentation source="required">false</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="href" type="xs:anyURI" use="optional">
+            <xs:annotation>
+                <xs:documentation source="modifiable">always</xs:documentation>
+                <xs:documentation xml:lang="en">
+                    The URI of the entity.
+                </xs:documentation>
+                <xs:documentation source="required">false</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="type" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation source="modifiable">always</xs:documentation>
+                <xs:documentation xml:lang="en">
+                    The MIME type of the entity.
+                </xs:documentation>
+                <xs:documentation source="required">false</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="name" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation source="modifiable">always</xs:documentation>
+                <xs:documentation xml:lang="en">
+                    The name type of the entity.
+                </xs:documentation>
+                <xs:documentation source="required">false</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="ReferenceType">
+        <xs:annotation>
+            <xs:documentation source="since">5.6</xs:documentation>
+            <xs:documentation xml:lang="en">
+                A reference to a entity. Contains an href attribute and
+                optional name and type attributes.
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="href" type="xs:anyURI" use="required">
+            <xs:annotation>
+                <xs:documentation source="modifiable">always</xs:documentation>
+                <xs:documentation xml:lang="en">
+                    Contains the URI to the entity.
+                </xs:documentation>
+                <xs:documentation source="required">true</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="id" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation source="modifiable">always</xs:documentation>
+                <xs:documentation xml:lang="en">
+                    The resource identifier, expressed in URN format.
+                    The value of this attribute uniquely identifies
+                    the resource, persists for the life of the entity,
+                    and is never reused.
+                </xs:documentation>
+                <xs:documentation source="required">false</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="type" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation source="modifiable">always</xs:documentation>
+                <xs:documentation xml:lang="en">
+                    Contains the type of the the entity.
+                </xs:documentation>
+                <xs:documentation source="required">false</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="name" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation source="modifiable">always</xs:documentation>
+                <xs:documentation xml:lang="en">
+                    Contains the name of the the entity.
+                </xs:documentation>
+                <xs:documentation source="required">false</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:element name="Link" type="LinkType"/>
+    <xs:complexType name="LinkType">
+        <xs:annotation>
+            <xs:documentation source="since">5.6</xs:documentation>
+            <xs:documentation xml:lang="en">
+                Extends reference type by adding relation attribute.
+                Defines a hyper-link with a relationship, hyper-link reference,
+                and an optional MIME type.
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:complexContent>
+            <xs:extension base="ReferenceType">
+                <xs:attribute name="rel" type="xs:string" use="required">
+                    <xs:annotation>
+                        <xs:documentation source="modifiable">always</xs:documentation>
+                        <xs:documentation xml:lang="en">
+                            Defines the relationship of the link to the object
+                            that contains it. A relationship can be the name of
+                            an operation on the object, a reference to a
+                            contained or containing object, or a reference to
+                            an alternate representation of the object. The
+                            relationship value implies the HTTP verb to use
+                            when you use the link's href as a request URL. See
+                            the VCHS API Programming Guide for a list of
+                            links and link relations.
+                        </xs:documentation>
+                        <xs:documentation source="required">true</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+</xs:schema>

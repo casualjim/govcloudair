@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ * ***********************************************************
+  ~ *  Copyright (c) 2014 VMware, Inc.  All rights reserved.
+  ~ * ***********************************************************
+  -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:common ="http://www.vmware.com/vchs/sc/common/v1"
+           targetNamespace="http://www.vmware.com/vchs/sc/common/v1" elementFormDefault="qualified" version="1.0">
+
+
+    <xs:include schemaLocation="simpleTypes.xsd"/>
+
+    <xs:element name="Resource" type="common:ResourceType"/>
+    <xs:complexType name="ResourceType">
+        <xs:annotation>
+            <xs:documentation xml:lang="en"></xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="link" type="common:LinkType" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        A reference to an entity or operation associated
+                        with this object.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="id" type="common:NonEmptyString" use="required">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    The resource identifier.The value of this attribute uniquely
+                    identifies the resource, persists for the life of the entity,
+                    and is never reused.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="name" type="common:NonEmptyString" use="required">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    Contains the name of the the entity.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:element name="Link" type="common:LinkType"/>
+    <xs:complexType name="LinkType">
+        <xs:annotation>
+            <xs:documentation xml:lang="en"></xs:documentation>
+        </xs:annotation>
+        <xs:attribute name="id" type="common:NonEmptyString" use="required">
+            <xs:annotation>
+                <xs:documentation xml:lang="en"></xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="href" type="xs:anyURI" use="required">
+            <xs:annotation>
+                <xs:documentation xml:lang="en"></xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="type" type="common:NonEmptyString" use="optional">
+            <xs:annotation>
+                <xs:documentation xml:lang="en"></xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="name" type="common:NonEmptyString" use="optional">
+            <xs:annotation>
+                <xs:documentation xml:lang="en"></xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="rel" type="common:NonEmptyString" use="required">
+            <xs:annotation>
+                <xs:documentation xml:lang="en"></xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+</xs:schema>

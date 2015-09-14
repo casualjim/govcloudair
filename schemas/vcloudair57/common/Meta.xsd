@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://www.vmware.com/vchs/iam/MetaTypes/v2.0"
+	xmlns:tns="http://www.vmware.com/vchs/iam/MetaTypes/v2.0">
+	<xs:complexType name="membersInfo">
+		<xs:sequence>
+			<xs:element ref="tns:member" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="member">
+		<xs:complexContent>
+			<xs:extension base="tns:memberinfo">
+				<xs:attribute ref="tns:href" />
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:attribute name="href">
+		<xs:simpleType>
+			<xs:restriction base="xs:anyURI" />
+		</xs:simpleType>
+	</xs:attribute>
+	<xs:complexType name="memberinfo">
+		<xs:sequence>
+			<xs:element ref="tns:value" minOccurs="1" maxOccurs="1" />
+			<xs:element ref="tns:display" minOccurs="0" maxOccurs="1" />
+			<xs:element ref="tns:operation" minOccurs="0" maxOccurs="1" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:annotation>
+		<xs:documentation>Generic type that encapsulates the transaction
+			details.
+		</xs:documentation>
+	</xs:annotation>
+	<xs:complexType name="metainfo">
+		<xs:annotation>
+			<xs:documentation source="since">5.7</xs:documentation>
+			<xs:documentation>
+				Meta type that encapsulates the following
+				information:
+				created : Create time of the resource.
+				modified : Last
+				modified time of resource.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element ref="tns:created">
+				<xs:annotation>
+					<xs:documentation source="since">5.7</xs:documentation>
+					<xs:documentation>
+						datetime signifies create time of resource.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element ref="tns:modified">
+				<xs:annotation>
+					<xs:documentation source="since">5.7</xs:documentation>
+					<xs:documentation>
+						datetime signifies last modified time of this
+						resource.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:element name="value" type="xs:string" />
+	<xs:element name="display" type="xs:string" />
+	<xs:element name="created" type="xs:date">
+		<xs:annotation>
+			<xs:documentation source="since">5.7</xs:documentation>
+			<xs:documentation>
+				datetime, when the resource was created.
+			</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="modified" type="xs:date">
+		<xs:annotation>
+			<xs:documentation source="since">5.7</xs:documentation>
+			<xs:documentation>
+				datetime, when the resource was last modified.
+			</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="id" type="xs:string">
+		<xs:annotation>
+			<xs:documentation source="since">5.7</xs:documentation>
+			<xs:documentation>
+				id of the resource.
+			</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="displayName" type="xs:string" >
+	<xs:annotation>
+			<xs:documentation source="since">5.7</xs:documentation>
+			<xs:documentation>
+				display name of the resource.
+			</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="description" type="xs:string" >
+	<xs:annotation>
+			<xs:documentation source="since">5.7</xs:documentation>
+			<xs:documentation>
+				description of the resource.
+			</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="meta" type="tns:metainfo">
+		<xs:annotation>
+			<xs:documentation source="since">5.7</xs:documentation>
+			<xs:documentation>
+				Meta type that encapsulates the following
+				information.
+				created : Create time of the resource.
+				modified : Last
+				modified time of resource.
+			</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="member" type="tns:memberinfo" />
+	<xs:element name="members" type="tns:membersInfo" />
+	<xs:element name="name" type="xs:string">
+		<xs:annotation>
+			<xs:documentation source="since">5.7</xs:documentation>
+			<xs:documentation>
+				Name of the resource.
+			</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="companyId" type="xs:string">
+		<xs:annotation>
+			<xs:documentation source="since">5.7</xs:documentation>
+			<xs:documentation>
+				Unique id of the company.
+			</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="operation" type="xs:string">
+		<xs:annotation>
+			<xs:documentation source="since">5.7</xs:documentation>
+			<xs:documentation>
+				The operation to perform on the multi-valued
+				attribute
+				during a PATCH request. The only valid value is "delete",
+				which
+				signifies that this instance should be removed from the
+				resource.e
+			</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+
+</xs:schema>

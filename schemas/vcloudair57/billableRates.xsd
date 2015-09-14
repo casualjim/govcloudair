@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+************************************************************ 
+    Copyright (c) 2014 VMware, Inc. All rights reserved.    
+************************************************************
+-->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns="http://www.vmware.com/vchs/vms/billabledata/v2"
+           targetNamespace="http://www.vmware.com/vchs/vms/billabledata/v2"
+           xmlns:meta="http://www.vmware.com/vchs/meta"
+           elementFormDefault="qualified" version="2.0">
+
+    <xs:annotation>
+        <xs:documentation source="since">5.7</xs:documentation>
+        <xs:documentation xml:lang="en">
+            Schema for the vCHS metering billable rates.
+        </xs:documentation>
+    </xs:annotation>
+
+    <!-- Billable Rates -->
+    <xs:element name="BillableRates" type="BillableRatesType">
+        <xs:annotation>
+            <xs:appinfo>
+                <meta:content-type>
+                    application/xml;application/json;class=com.vmware.vchs.metering.billableRates
+                </meta:content-type>
+            </xs:appinfo>
+            <xs:documentation source="since">5.7</xs:documentation>
+            <xs:documentation xml:lang="en">
+                Lists all billable rates for a service group. The billable rates returned are across data-centers.
+                Returns :
+                currency,
+                service type,
+                data-center,
+                metric name,
+                metric unit,
+                and rate per unit consumed
+            </xs:documentation>
+        </xs:annotation>
+    </xs:element>
+
+    <xs:complexType name="BillableRatesType">
+        <xs:annotation>
+            <xs:appinfo>
+                <meta:content-type>
+                    application/xml;application/json;class=com.vmware.vchs.metering.billableRates
+                </meta:content-type>
+            </xs:appinfo>
+            <xs:documentation source="since">5.7</xs:documentation>
+            <xs:documentation xml:lang="en">
+                Lists all billable rates for a service group. The billable rates returned are across data-centers.
+                Returns :
+                currency,
+                service type,
+                data-center,
+                metric name,
+                metric unit,
+                and rate per unit consumed
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="Billable" type="BillableRateType" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">always</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        Represents the rate object.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="currency" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation source="since">5.7</xs:documentation>
+                <xs:documentation source="modifiable">none</xs:documentation>
+                <xs:documentation xml:lang="en">
+                    The billing currency, will be in ISO 4217 code e.g. USD, GBP, etc.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="BillableRateType">
+        <xs:annotation>
+            <xs:documentation source="since">5.7</xs:documentation>
+            <xs:documentation source="modifiable">always</xs:documentation>
+            <xs:documentation xml:lang="en">
+                Represents the rate object.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="Name" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">always</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        The name of the metric.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Unit" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">always</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        The unit of the metric.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Rate" type="xs:decimal">
+                <xs:annotation>
+                    <xs:documentation source="since">5.7</xs:documentation>
+                    <xs:documentation source="modifiable">always</xs:documentation>
+                    <xs:documentation xml:lang="en">
+                        The applicable rate as per usage consumption.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="service" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation source="since">5.7</xs:documentation>
+                <xs:documentation source="modifiable">always</xs:documentation>
+                <xs:documentation xml:lang="en">
+                    Represents the service type e.g. compute.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="dataCenter" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation source="since">5.7</xs:documentation>
+                <xs:documentation source="modifiable">always</xs:documentation>
+                <xs:documentation xml:lang="en">
+                    Data-center name where rate is applicable.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+</xs:schema>

@@ -1,0 +1,818 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+	<xs:schema elementFormDefault="qualified" version="1.0"
+	targetNamespace="http://www.vmware.com/vchs/iam/v2.0" xmlns:tns="http://www.vmware.com/vchs/iam/v2.0"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:meta="http://www.vmware.com/vchs/iam/MetaTypes/v2.0">
+	<xs:import schemaLocation="../common/Meta.xsd"
+		namespace="http://www.vmware.com/vchs/iam/MetaTypes/v2.0" />
+
+	<xs:annotation>
+		<xs:documentation source="since">5.7</xs:documentation>
+		<xs:documentation xml:lang="en">
+			Schema for the IAM User.
+		</xs:documentation>
+	</xs:annotation>
+
+	<xs:element name="User" type="tns:user">
+		<xs:annotation>
+			<xs:appinfo>
+				<meta:content-type>
+					application/xml;application/json;class=com.vmware.vchs.iam.api.classes.user.user;
+				</meta:content-type>
+			</xs:appinfo>
+			<xs:documentation source="since">5.7</xs:documentation>
+			<xs:documentation xml:lang="en">
+				encapsulates user
+				information contains :
+				companyId,
+				customerNumber,
+				email,
+				familyName,
+				givenName,
+				roles,
+				serviceGroupIds,
+				tosAcceptDate,
+				tosAccepted.
+				
+			</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="Users" type="tns:userList">
+		<xs:annotation>
+			<xs:appinfo>
+				<meta:content-type>
+					application/xml;application/json;class=com.vmware.vchs.iam.api.classes.user.users;
+				</meta:content-type>
+			</xs:appinfo>
+			<xs:documentation source="since">5.7</xs:documentation>
+			<xs:documentation xml:lang="en">
+				encapsulates a list of
+				users.
+			</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+
+	<xs:element name="company" type="tns:company">
+		<xs:annotation>
+			<xs:appinfo>
+				<meta:content-type>
+					application/xml;application/json;class=com.vmware.vchs.iam.api.classes.user.company;
+				</meta:content-type>
+			</xs:appinfo>
+			<xs:documentation source="since">5.7</xs:documentation>
+			<xs:documentation xml:lang="en">
+				Element that wraps around
+				company information.
+				contains :
+				accountNumber,
+				description,
+				name.
+			</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="role" type="tns:role">
+		<xs:annotation>
+			<xs:appinfo>
+				<meta:content-type>
+					application/xml;application/json;class=com.vmware.vchs.iam.api.classes.user.Role;
+				</meta:content-type>
+			</xs:appinfo>
+			<xs:documentation source="since">5.7</xs:documentation>
+			<xs:documentation xml:lang="en">
+				Element that encapsulates
+				individual role details.
+				contains:
+				description,
+				name,
+				rights.
+				Following
+				is the list of roles that are supported via API:
+				Account
+				Administrator: Allows user management and account settings.
+				Virtual
+				Infrastructure Administrator:Allows management of VDCs, VMs, and
+				Backup service.
+				Network Administrator: Allows network management.
+				Read-Only Administrator:Allows read-only access to all
+				administration
+				objects.
+				Subscription Administrator:Allows user
+				accounts to be linked to the MyVMware
+				accounts."
+				End User:Allows
+				creation and management of VMs.
+			</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="roles" type="tns:roles">
+		<xs:annotation>
+			<xs:appinfo>
+				<meta:content-type>
+					application/xml;application/json;class=com.vmware.vchs.iam.api.classes.user.Roles;
+				</meta:content-type>
+			</xs:appinfo>
+			<xs:documentation source="since">5.7</xs:documentation>
+			<xs:documentation xml:lang="en">
+				Encapsulates list of role
+				elements.
+			</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:complexType name="roles">
+		<xs:annotation>
+			<xs:appinfo>
+				<meta:content-type>
+					application/xml;application/json;class=com.vmware.vchs.iam.api.classes.user.Roles;
+				</meta:content-type>
+			</xs:appinfo>
+			<xs:documentation source="since">5.7</xs:documentation>
+			<xs:documentation xml:lang="en">
+				Type that encapsulates
+				the list of role elements.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element ref="tns:role" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:appinfo>
+						<meta:content-type>
+							application/xml;application/json;class=com.vmware.vchs.iam.api.classes.user.Role;
+						</meta:content-type>
+					</xs:appinfo>
+					<xs:documentation source="since">5.7</xs:documentation>
+					<xs:documentation xml:lang="en">
+						Element that
+						encapsulates
+						individual role details.
+						contains:
+						description,
+						name,
+						rights.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="role">
+		<xs:annotation>
+			<xs:appinfo>
+				<meta:content-type>
+					application/xml;application/json;class=com.vmware.vchs.iam.api.classes.user.Role;
+				</meta:content-type>
+			</xs:appinfo>
+			<xs:documentation source="since">5.7</xs:documentation>
+			<xs:documentation xml:lang="en">
+				Element that
+				encapsulates
+				individual role details.
+				contains:
+				description : Contains brief
+				description about the role.
+				name : Name
+				of the role.
+				Following are
+				the
+				list of supported role name.
+				Account Administrator,
+				Virtual
+				Infrastructure Administrator,
+				Network
+				Administrator,
+				Read-Only
+				Administrator,
+				Subscription Administrator,
+				End User.
+				rights : list of
+				rights associated with role.
+				Typically a right
+				would control access
+				to
+				API.
+				For example PUT:User would indicate
+				whether the role
+				has right
+				to
+				update a user.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="description" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation source="since">5.7</xs:documentation>
+					<xs:documentation xml:lang="en">
+						Contains brief
+						description about the role.
+						Example a for a network
+						administrator
+						role description would be
+						Allows network management.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="name" type="xs:string">
+				<xs:annotation>
+					<xs:documentation source="since">5.7</xs:documentation>
+					<xs:documentation xml:lang="en">
+						name of the role.
+						List
+						of supported role names:
+						Account Administrator,
+						Virtual
+						Infrastructure Administrator,
+						Network
+						Administrator,
+						Read-Only
+						Administrator,
+						Subscription Administrator,
+						End User.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="rights" type="tns:right" minOccurs="0"
+				maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:appinfo>
+						<meta:content-type>
+							application/xml;application/json;class=com.vmware.vchs.iam.api.classes.user.Rights;
+						</meta:content-type>
+					</xs:appinfo>
+					<xs:documentation source="since">5.7</xs:documentation>
+					<xs:documentation xml:lang="en">
+						list of rights
+						associated with role.
+						Typically a right would control access
+						to API.
+						For example PUT:User would indicate
+						whether the role has right
+						to
+						update a user.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:string">
+			<xs:annotation>
+				<xs:documentation source="since">5.7</xs:documentation>
+				<xs:documentation xml:lang="en">
+					Unique id of the role.id
+					varies from 1 to 6 which correspond
+					to the individual role.
+					Following are the id corresponding to supported roles.
+					1 -> Account
+					Administrator,
+					2 -> Virtual Infrastructure Administrator,
+					3 ->
+					Network Administrator,
+					4 -> Read-Only Administrator,
+					5 ->
+					Subscription Administrator,
+					6 -> End User.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="right">
+		<xs:annotation>
+			<xs:appinfo>
+				<meta:content-type>
+					application/xml;application/json;class=com.vmware.vchs.iam.api.classes.user.Rights;
+				</meta:content-type>
+			</xs:appinfo>
+			<xs:documentation source="since">5.7</xs:documentation>
+			<xs:documentation xml:lang="en">
+				Indiviudal right
+				information , rights typically correspond to
+				action.
+				Example :
+				PUT:User right would correspond to update user action.
+				contains:
+				id,
+				name.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element ref="meta:id">
+				<xs:annotation>
+					<xs:documentation source="since">5.7</xs:documentation>
+					<xs:documentation xml:lang="en">
+						unique id of the right.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element ref="meta:name">
+				<xs:annotation>
+					<xs:documentation source="since">5.7</xs:documentation>
+					<xs:documentation xml:lang="en">
+						name of the right.
+						Example :
+						name could be "PUT:User" which would correspond to update
+						user action.
+						contains:
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="scimCore" abstract="true">
+
+		<xs:annotation>
+			<xs:appinfo>
+				<meta:content-type>
+					application/xml;application/json;class=com.vmware.vchs.iam.api.classes.user.scimcore;
+				</meta:content-type>
+			</xs:appinfo>
+			<xs:documentation source="since">5.7</xs:documentation>
+			<xs:documentation xml:lang="en">
+				Base type for User ,
+				Company etc. This encapsulates common information
+				listed below which
+				are extended by User , Company etc types.
+				Contains:
+				meta : Meta
+				element
+				encapsulates creation and
+				modification details of any given
+				resource.
+				schemas: The schemas attribute
+				is an array of Strings
+				which
+				allows introspection of the supported
+				schema version for a SCIM
+				representation as well any schema extensions
+				supported by that
+				representation.
+				state: Indicates the current state
+				of the resource.
+				Supported values : {ACTIVE , INACTIVE}
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="meta" type="meta:metainfo" minOccurs="0"
+				maxOccurs="1">
+				<xs:annotation>
+					<xs:appinfo>
+						<meta:content-type>
+							application/xml;application/json;class=com.vmware.vchs.iam.api.classes.meta.metainfo;
+						</meta:content-type>
+					</xs:appinfo>
+					<xs:documentation source="since">5.7</xs:documentation>
+					<xs:documentation xml:lang="en">
+						Meta element
+						encapsulates creation and
+						modification details of any given
+						resource.
+						Contains:
+						created : datetime of type XMLGregorian ,
+						signifies
+						create time of the resource.
+						modified: datetime of type
+						XMLGregorian , signifies
+						last modificiation time of the resource.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="schemas" type="xs:string" nillable="true"
+				minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation source="since">5.7</xs:documentation>
+					<xs:documentation xml:lang="en">
+						state: Indicates the
+						current state
+						of the resource.
+						Supported values : {ACTIVE ,
+						INACTIVE}
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="state" type="xs:string" minOccurs="0"
+				maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation source="since">5.7</xs:documentation>
+					<xs:documentation xml:lang="en">
+						The schemas attribute
+						is an array of Strings which allows
+						introspection of the supported
+						schema version for a SCIM
+						representation as well any schema
+						extensions supported by that
+						representation. Each String value must
+						be a unique URI. This
+						specification defines URIs for User.
+						SCIM
+						provides a schema for representing Users, identified using the
+						following URI: "urn:scim:schemas:core:2.0:User".
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:string">
+			<xs:annotation>
+				<xs:documentation source="since">5.7</xs:documentation>
+				<xs:documentation xml:lang="en">
+					id attribute signfies
+					the id of type extending the
+					ScimCore type.
+					Example for User this
+					would correspond to userId ,
+					for company
+					this would correspond to
+					companyId.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="company">
+		<xs:complexContent>
+			<xs:annotation>
+				<xs:appinfo>
+					<meta:content-type>
+						application/xml;application/json;class=com.vmware.vchs.iam.api.classes.user.company;
+					</meta:content-type>
+				</xs:appinfo>
+				<xs:documentation source="since">5.7</xs:documentation>
+				<xs:documentation>
+					Encapsulates the information about the company.
+					contains:
+					accountNumber : Account number of this company,
+					description : Brief description about this company,
+					name : Name of
+					this company.
+				</xs:documentation>
+			</xs:annotation>
+			<xs:extension base="tns:scimCore">
+				<xs:annotation>
+					<xs:appinfo>
+						<meta:content-type>
+							application/xml;application/json;class=com.vmware.vchs.iam.api.classes.user.scimcore;
+						</meta:content-type>
+					</xs:appinfo>
+					<xs:documentation source="since">5.7</xs:documentation>
+					<xs:documentation xml:lang="en">
+						Base type for User ,
+						Company etc. This encapsulates common information
+						listed below
+						which
+						are extended by User , Company etc types.
+						Contains:
+						meta : Meta
+						element
+						encapsulates creation and
+						modification details of any given
+						resource.
+						schemas: The schemas attribute
+						is an array of Strings
+						which
+						allows introspection of the supported
+						schema version for a
+						SCIM
+						representation as well any schema extensions
+						supported by that
+						representation.
+						state: Indicates the current state
+						of the resource.
+						Supported values : {ACTIVE , INACTIVE}
+						id: id of the extending
+						resource , eg : would
+						correspond to userid for User.
+					</xs:documentation>
+				</xs:annotation>
+				<xs:sequence>
+					<xs:element name="accountNumber" type="xs:string"
+						minOccurs="0">
+						<xs:annotation>
+							<xs:documentation source="since">5.7</xs:documentation>
+							<xs:documentation xml:lang="en">
+								Account number for
+								this company.
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="description" type="xs:string"
+						minOccurs="0">
+						<xs:annotation>
+							<xs:documentation source="since">5.7</xs:documentation>
+							<xs:documentation xml:lang="en">
+								Description for this
+								company.
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="name" type="xs:string" minOccurs="0">
+						<xs:annotation>
+							<xs:documentation source="since">5.7</xs:documentation>
+							<xs:documentation xml:lang="en">
+								Name of this company.
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+
+	<xs:element name="serviceGroup" type="tns:serviceGroup">
+		<xs:annotation>
+			<xs:appinfo>
+				<meta:content-type>
+					application/xml;application/json;class=com.vmware.vchs.iam.api.classes.user.serviceGroup;
+				</meta:content-type>
+			</xs:appinfo>
+			<xs:documentation source="since">5.7</xs:documentation>
+			<xs:documentation xml:lang="en">
+				Element that encapsulates
+				individual serviceGroup
+				details.
+				See serviceGroup type for structure.
+			</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+
+
+	<xs:element name="serviceGroups" type="tns:serviceGroups">
+		<xs:annotation>
+			<xs:appinfo>
+				<meta:content-type>
+					application/xml;application/json;class=com.vmware.vchs.iam.api.classes.user.serviceGroup;
+				</meta:content-type>
+			</xs:appinfo>
+			<xs:documentation source="since">5.7</xs:documentation>
+			<xs:documentation xml:lang="en">
+				Encapsulates list of
+				serviceGroups. See serviceGroup
+				type for structure.
+			</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+
+	<xs:complexType name="serviceGroups">
+		<xs:annotation>
+			<xs:appinfo>
+				<meta:content-type>
+					application/xml;application/json;class=com.vmware.vchs.iam.api.classes.user.serviceGroups;
+				</meta:content-type>
+			</xs:appinfo>
+			<xs:documentation source="since">5.7</xs:documentation>
+			<xs:documentation>
+				serviceGroup element list contains list serviceGroup
+				details.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element ref="tns:serviceGroup" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:appinfo>
+						<meta:content-type>
+							application/xml;application/json;class=com.vmware.vchs.iam.api.classes.user.serviceGroup;
+						</meta:content-type>
+					</xs:appinfo>
+					<xs:documentation source="since">5.7</xs:documentation>
+					<xs:documentation xml:lang="en">
+						Encapsulates list of
+						serviceGroups
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+
+
+	<xs:complexType name="serviceGroup">
+		<xs:annotation>
+			<xs:appinfo>
+				<meta:content-type>
+					application/xml;application/json;class=com.vmware.vchs.iam.api.classes.user.serviceGroup;
+				</meta:content-type>
+			</xs:appinfo>
+			<xs:documentation source="since">5.7</xs:documentation>
+			<xs:documentation xml:lang="en">
+				Type that encapsulates
+				serviceGroup.
+				contains
+				serviceGroupId,
+				displayName.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="serviceGroupId" type="xs:string"
+				minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation source="since">5.7</xs:documentation>
+					<xs:documentation xml:lang="en">
+						Id of the service
+						group.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="displayName" type="xs:string" minOccurs="0"
+				maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation source="since">5.7</xs:documentation>
+					<xs:documentation xml:lang="en">
+						Display name of the
+						service group.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="userList">
+		<xs:annotation>
+			<xs:appinfo>
+				<meta:content-type>
+					application/xml;application/json;class=com.vmware.vchs.iam.api.classes.user.users;
+				</meta:content-type>
+			</xs:appinfo>
+			<xs:documentation source="since">5.7</xs:documentation>
+			<xs:documentation xml:lang="en">
+				Encapsulates a list of
+				user elements.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element ref="tns:User" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:appinfo>
+						<meta:content-type>
+							application/xml;application/json;class=com.vmware.vchs.iam.api.classes.user.users;
+						</meta:content-type>
+					</xs:appinfo>
+					<xs:documentation source="since">5.7</xs:documentation>
+					<xs:documentation xml:lang="en">
+						User type element
+						Contains :
+						companyId : id of the company associated with the user.
+						customerNumber : Customer number
+						email : email Id.
+						familyName :Last
+						name.
+						givenName : First name.
+						roles : List of roles associated with
+						user.
+						serviceGroupIds : Enumerates list of
+						service groupIds for
+						user.
+						tosAcceptDate : terms of service
+						agreement acceptance date.
+						(Un-modifiable)
+						tosAccepted : terms of service
+						acceptance
+						status.(Un-modifiable)
+						true = accepted , false = not accepted.
+						userName : unique name (alias) of the user.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="user">
+
+		<xs:complexContent>
+			<xs:extension base="tns:scimCore">
+				<xs:annotation>
+					<xs:appinfo>
+						<meta:content-type>
+							application/xml;application/json;class=com.vmware.vchs.iam.api.classes.user.users;
+						</meta:content-type>
+					</xs:appinfo>
+					<xs:documentation source="since">5.7</xs:documentation>
+					<xs:documentation xml:lang="en">
+						user type contains :
+						companyId,
+						customerNumber,
+						email,
+						familyName,
+						givenName,
+						roles,
+						serviceGroups,
+						tosAcceptDate,
+						tosAccepted,
+						userName.
+					</xs:documentation>
+				</xs:annotation>
+				<xs:sequence>
+					<xs:element name="companyId" type="xs:string" minOccurs="0"
+						maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation source="since">5.7</xs:documentation>
+							<xs:documentation xml:lang="en">
+								Unique id of this
+								company with which this user is associated.
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="customerNumber" type="xs:string"
+						minOccurs="0">
+						<xs:annotation>
+							<xs:documentation source="since">5.7</xs:documentation>
+							<xs:documentation xml:lang="en">
+								customer number of
+								the
+								user's company.
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="email" type="xs:string" minOccurs="0"
+						maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation source="since">5.7</xs:documentation>
+							<xs:documentation xml:lang="en">
+								email id of the user.
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="familyName" type="xs:string"
+						minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation source="since">5.7</xs:documentation>
+							<xs:documentation xml:lang="en">
+								last name of this
+								user.
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="givenName" type="xs:string" minOccurs="0"
+						maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation source="since">5.7</xs:documentation>
+							<xs:documentation xml:lang="en">
+								last name of this
+								user.
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element ref="tns:roles" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:appinfo>
+								<meta:content-type>
+									application/xml;application/json;class=com.vmware.vchs.iam.api.classes.user.roles;
+								</meta:content-type>
+							</xs:appinfo>
+							<xs:documentation source="since">5.7</xs:documentation>
+							<xs:documentation xml:lang="en">
+								Element that
+								encapsulates list of roles associated with user.
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element ref="tns:serviceGroups" minOccurs="0"
+						maxOccurs="1">
+						<xs:annotation>
+							<xs:appinfo>
+								<meta:content-type>
+									application/xml;application/json;class=com.vmware.vchs.iam.api.classes.user.serviceGroups;
+								</meta:content-type>
+							</xs:appinfo>
+							<xs:documentation source="since">5.7</xs:documentation>
+							<xs:documentation>
+								serviceGroup element list contains list
+								serviceGroup
+								details.
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="tosAcceptDate" type="xs:dateTime"
+						minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation source="since">5.7</xs:documentation>
+							<xs:documentation>
+								Date of type XMLGregorian , signifies timestamp
+								at which terms of service aggrement was accepted by this user.
+								Once set it is an un-modifiable value.
+								Read only value
+								for the
+								API.
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="tosAccepted" type="xs:boolean"
+						minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation source="since">5.7</xs:documentation>
+							<xs:documentation>
+								Status of terms of service, signifies whether
+								terms of service aggrement has been accepted by this user. Read
+								only value for the API.
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="userName" type="xs:string" minOccurs="0"
+						maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation source="since">5.7</xs:documentation>
+							<xs:documentation>
+								A string that uniquely identifies a user. It is
+								used as the login name. It has email syntax e.g.
+								name@company.com.
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+</xs:schema>
+
+

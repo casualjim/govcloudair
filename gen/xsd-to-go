@@ -1,0 +1,257 @@
+#!/usr/bin/env ruby
+
+# Copyright (c) 2014 VMware, Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+$:.unshift(File.expand_path(File.dirname(__FILE__)))
+
+require 'set'
+require 'nokogiri'
+
+PRIMITIVES = %w(string byte bool int8 int16 int32 int64 int uint8 uint16 uint32 uint64 uint string float32 float64).to_set
+API_VERSIONS = ["56", "57", "511"]
+SCHEMA_PATH = File.join(File.expand_path(File.dirname(__FILE__)), "..", "schemas")
+COMMON_GO_CAPS = {
+  "API" =>   true,
+	"ASCII" => true,
+	"CPU" =>   true,
+	"CSS" =>   true,
+	"DNS" =>   true,
+	"EOF" =>   true,
+	"GUID" =>  true,
+	"HTML" =>  true,
+	"HTTP" =>  true,
+	"HTTPS" => true,
+	"ID" =>    true,
+	"IP" =>    true,
+	"JSON" =>  true,
+	"LHS" =>   true,
+	"QPS" =>   true,
+	"RAM" =>   true,
+	"RHS" =>   true,
+	"RPC" =>   true,
+	"SLA"  =>   true,
+	"SMTP" =>  true,
+	"SQL" =>   true,
+	"SSH" =>   true,
+	"TCP" =>   true,
+	"TLS" =>   true,
+	"TTL" =>   true,
+	"UDP" =>   true,
+	"UI" =>    true,
+	"UID" =>   true,
+	"UUID" =>  true,
+	"URI" =>   true,
+	"URL" =>   true,
+	"UTF8" =>  true,
+	"VM" =>    true,
+	"XML" =>   true,
+	"XSRF" =>  true,
+	"XSS" =>   true
+}
+
+class SimpleType
+
+  def initialize(*args)
+    @node = args.first
+  end
+
+  def name
+    @node["name"]
+  end
+
+  def type
+    @node["type"]
+  end
+
+  def to_s
+    self.name
+  end
+end
+
+class TypeDocs
+  attr_accessor :text, :since, :modifiable
+
+  def modifiable?
+    !!@modifiable
+  end
+end
+
+class ComplexType
+  attr_accessor :doc, :content_type, :properties
+
+  def initialize(*args)
+    @parent, @node = args[0], args[1]
+    @node.elements.each(&method(:parse_element))
+  end
+
+  def parse_element(el)
+    case el.name
+    when "annotation"
+      # check for doc comments
+      self.parse_annotation(el)
+    when "sequence"
+      # ORDERED!!!!! flippin attributes; these people hate the guts of their consumers
+      # This is like the 80's all over: meh uuusers
+      # Did I wake up in Tron Legacy?
+    when "attribute"
+      # yay an actually useful thing
+      #puts "found an attribute #{el.inspect}"
+      (@properties||=[]) << Property.new(nil, el)
+    when "complexContent"
+      puts "unparsed complex content, this is likely an inheritance structure"
+    else
+      puts "unknown element: #{el.inspect}"
+    end
+  end
+
+  def parse_annotation(ann)
+    case ann.name
+    when "documentation"
+      self.parse_documentation(ann)
+    when "appinfo"
+      self.parse_appinfo(ann)
+    end
+  end
+
+  def parse_documentation(at)
+    case at["source"]
+    when "since"
+      (@doc||=TypeDocs.new).since = at["source"]
+    when "modifiable"
+      (@doc||=TypeDocs.new).modifiable = true
+    else
+      # only if the docs are english, we're interested
+      if at["xml:lang"] == "en"
+        (@doc||=TypeDocs.new).text = at.text
+      else
+        puts "unknown element: #{at.inspect}"
+      end
+    end
+  end
+
+  def parse_appinfo(apinf)
+  end
+
+  def name
+    @node["name"]
+  end
+
+  def type
+    @node["type"]
+  end
+
+  def to_s
+    self.name
+  end
+
+end
+
+class Property
+  attr_accessor :ordinal, :doc
+
+  def initialize(ord, node)
+    @ordinal, @node = ord, node
+  end
+
+  def parse_element(el)
+    case el.name
+    when "annotation"
+      @doc = TypeDocs.new(el)
+    else
+      puts "unknown element: #{el.inspect}"
+    end
+  end
+
+  def required?
+    @node["use"] == "required"
+  end
+
+  def optional?
+    !self.required?
+  end
+
+  def type
+    @node["type"]
+  end
+
+  def name
+    @node["name"]
+  end
+
+  def to_s
+    "#{self.name} -> #{self.type}"
+  end
+end
+
+class SchemaReader
+  attr_accessor :path, :types, :included_schemas
+
+  def initialize(*args)
+    @path = File.join(SCHEMA_PATH, *args)
+    @types = []
+    @included_schemas = { args.last => self }
+
+    puts "parsing #{args.last}"
+    schema = Nokogiri(File.read(@path))
+    schema.root.elements.each(&method(:parse_element))
+  end
+
+  def parse_element(el)
+    case el.name
+    when "complexType"
+      @types << ComplexType.new(self, el)
+    when "simpleType"
+      @types << SimpleType.new(el)
+    when "element"
+      # top level element => package level element
+      # WTH?!? Why would you want to do this when describing an API
+      # for consumption by 3rd parties?
+      # I don't need your broken convoluted abstractions
+    when "include"
+      loc = el["schemaLocation"]
+      unless @included_schemas.has_key? loc
+        rdr = SchemaReader.new(File.basename(File.dirname(@path)), loc)
+        # flatten and lift the included schemas, so lookup is quick and easy
+        puts "collected #{rdr.size} types"
+        puts rdr.types
+        puts rdr.included_schemas.keys
+        @included_schemas.merge! rdr.included_schemas
+      end
+    when "annotation"
+      puts "skipping annotation at top level"
+    else
+      puts "unknown type #{el.name}"
+    end
+  end
+
+  def has?(tpe)
+    @types.any? do |tt|
+      tt.name == tpe.to_s
+    end
+  end
+
+  def size
+    @types.size
+  end
+end
+
+
+if $0 == __FILE__
+  rdr = SchemaReader.new("vcloudair56", "service.xsd")
+  puts "collected #{rdr.size} types"
+  puts rdr.types
+  puts "reader has ServiceType: #{rdr.has?(:ServiceType)}"
+  puts "included schemas: #{rdr.included_schemas.keys}"
+end
