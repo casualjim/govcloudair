@@ -230,12 +230,8 @@ class SchemaReader
     when "simpleType"
       @types << SimpleType.new(el)
     when "element"
-      # top level element => package level element
-      # WTH?!? Why would you want to do this when describing an API
-      # for consumption by 3rd parties?
-      # I don't need your broken convoluted abstractions
-      #
       # in java this seems to be used to generate factory methods
+      # luckily this isn't java
     when "include"
       loc = el["schemaLocation"]
       unless @included_schemas.has_key? loc
@@ -263,9 +259,11 @@ end
 
 
 if $0 == __FILE__
-  rdr = SchemaReader.new("vcloudair56", "service.xsd")
-  puts "collected #{rdr.size} types"
-  puts rdr.types
-  puts "reader has ServiceType: #{rdr.has?(:ServiceType)}"
-  puts "included schemas: #{rdr.included_schemas.keys}"
+  %w(error service session vchs).each do |nm|
+    rdr = SchemaReader.new("vcloudair56", "#{nm}.xsd")
+    puts "collected #{rdr.size} types"
+    puts rdr.types
+    puts "reader has ServiceType: #{rdr.has?(:ServiceType)}"
+    puts "included schemas: #{rdr.included_schemas.keys}"
+  end
 end
