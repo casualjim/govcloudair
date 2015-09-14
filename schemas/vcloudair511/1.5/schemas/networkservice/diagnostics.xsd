@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?><xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://www.vmware.com/vcloud/networkservice/common/1.0" xmlns:vcloud1.5="http://www.vmware.com/vcloud/v1.5" xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" targetNamespace="http://www.vmware.com/vcloud/networkservice/common/1.0" elementFormDefault="qualified" version="1.0">
+    <xs:element name="DiagnosticInfo" type="DiagnosticInfoType"/>
+    <xs:complexType name="DiagnosticInfoType">
+    <xs:sequence>
+    <xs:element name="Status" type="xs:string">
+    </xs:element>
+    <xs:element name="Host" type="xs:string">
+    </xs:element>
+    </xs:sequence>
+    </xs:complexType>
+</xs:schema>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?><xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://www.vmware.com/vcloud/networkservice/common/1.0" xmlns:vcloud1.5="http://www.vmware.com/vcloud/v1.5" xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" targetNamespace="http://www.vmware.com/vcloud/networkservice/common/1.0" elementFormDefault="qualified" version="1.0">
+    
+    <!--  TBD need to figure out 
+         1. how to load from a Jar in the ClassPath and as well  
+         2. Resolved for JAXB so it doesn't recompile imported schemas; rather uses the classes from the 
+            jars
+    -->
+    <!-- <xs:import namespace="http://www.vmware.com/vcloud/v1.5" 
+        schemaLocation="jar:file:/${HOME}/.ivy2-p2/cache/com.vmware.vcloud/rest-api-schemas/jars/rest-api-schemas-5.1.0.jar!/etc/1.5/schemas/vcloud/entity.xsd"></xs:import> -->
+   
+   <xs:import namespace="http://www.vmware.com/vcloud/v1.5" schemaLocation="../vcloud/entity.xsd"/>
+        
+   <xs:complexType name="StatefulEntityType">
+        <xs:annotation>
+            <xs:documentation xml:lang="en"> Extension to the Basic entity type in the vCD object model, to 
+                introduce State Awareness. </xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="vcloud1.5:EntityType">
+                <xs:sequence>
+                    <xs:element name="State" type="xs:string">
+                        <xs:annotation>
+                            <xs:documentation xml:lang="en"> Status of this entity. The allowed values are:
+                            "Inactive", "Activating", "Active", "Suspending", "Suspended", "Deleting", 
+                            "Deleted", "Error"".
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+   
+    <xs:complexType name="VdcAwareEntityType">
+        <xs:annotation>
+            <xs:documentation xml:lang="en"> Extension to the Basic entity with VDC (cloud) Awareness </xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="StatefulEntityType">
+                <xs:sequence>
+                    <xs:element name="VdcId" type="xs:string">
+                        <xs:annotation>
+                            <xs:documentation xml:lang="en"> The ID of the VDC (virtual data center) </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                    <xs:element name="VdcName" type="xs:string">
+                        <xs:annotation>
+                            <xs:documentation xml:lang="en"> The name of the VDC (virtual data center) </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                    <xs:element name="VdcHref" type="xs:anyURI">
+                        <xs:annotation>
+                            <xs:documentation xml:lang="en"> The ID of the VDC (virtual data center). Refer to vcloud1.5:EntityType#id for details </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                    <xs:element name="VCloudUILink" type="vcloud1.5:LinkType" minOccurs="0" maxOccurs="unbounded">
+                        <xs:annotation>
+                            <xs:documentation xml:lang="en">
+                                Link to manage this resource in vCloud Director.
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+       
+</xs:schema>

@@ -89,10 +89,11 @@ class TypeDocs
 end
 
 class ComplexType
-  attr_accessor :doc, :content_type, :properties
+  attr_accessor :doc, :content_type, :properties, :ancestors
 
   def initialize(*args)
     @parent, @node = args[0], args[1]
+    puts "object #{self.name}"
     @node.elements.each(&method(:parse_element))
   end
 
@@ -100,28 +101,36 @@ class ComplexType
     case el.name
     when "annotation"
       # check for doc comments
-      self.parse_annotation(el)
+      el.elements.each(&method(:parse_annotation))
     when "sequence"
-      # ORDERED!!!!! flippin attributes; these people hate the guts of their consumers
-      # This is like the 80's all over: meh uuusers
-      # Did I wake up in Tron Legacy?
+      # Did I wake up in Tron Legacy? meh uuuuusers
+      puts "#{self.name} unparsed sequence"
     when "attribute"
       # yay an actually useful thing
-      #puts "found an attribute #{el.inspect}"
       (@properties||=[]) << Property.new(nil, el)
     when "complexContent"
-      puts "unparsed complex content, this is likely an inheritance structure"
+      el.elements.each(&method(:parse_complex_content))
     else
       puts "unknown element: #{el.inspect}"
     end
   end
 
-  def parse_annotation(ann)
-    case ann.name
+  def parse_complex_content(el)
+    case el.name
+    when "extension"
+      (@ancestors||=[]) << el["base"]
+      el.elements.each(&method(:parse_element))
+    else
+      puts "unknown element #{el.inspect}"
+    end
+  end
+
+  def parse_annotation(el)
+    case el.name
     when "documentation"
-      self.parse_documentation(ann)
+      self.parse_documentation(el)
     when "appinfo"
-      self.parse_appinfo(ann)
+      self.parse_appinfo(el)
     end
   end
 
@@ -130,7 +139,7 @@ class ComplexType
     when "since"
       (@doc||=TypeDocs.new).since = at["source"]
     when "modifiable"
-      (@doc||=TypeDocs.new).modifiable = true
+      (@doc||=TypeDocs.new).modifiable = at.text
     else
       # only if the docs are english, we're interested
       if at["xml:lang"] == "en"
@@ -142,6 +151,11 @@ class ComplexType
   end
 
   def parse_appinfo(apinf)
+    apinf.elements.each do |el|
+      if el.name == "content-type"
+        @content_type = el.text
+      end
+    end
   end
 
   def name
@@ -163,6 +177,7 @@ class Property
 
   def initialize(ord, node)
     @ordinal, @node = ord, node
+    puts "property #{self.name} #{self.type}"
   end
 
   def parse_element(el)
@@ -219,14 +234,13 @@ class SchemaReader
       # WTH?!? Why would you want to do this when describing an API
       # for consumption by 3rd parties?
       # I don't need your broken convoluted abstractions
+      #
+      # in java this seems to be used to generate factory methods
     when "include"
       loc = el["schemaLocation"]
       unless @included_schemas.has_key? loc
         rdr = SchemaReader.new(File.basename(File.dirname(@path)), loc)
         # flatten and lift the included schemas, so lookup is quick and easy
-        puts "collected #{rdr.size} types"
-        puts rdr.types
-        puts rdr.included_schemas.keys
         @included_schemas.merge! rdr.included_schemas
       end
     when "annotation"

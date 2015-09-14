@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?><xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://www.vmware.com/vcloud/networkservice/ipam/1.0" xmlns:vcloud1.5="http://www.vmware.com/vcloud/v1.5" xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" targetNamespace="http://www.vmware.com/vcloud/networkservice/ipam/1.0" elementFormDefault="qualified" version="1.0">
+    
+    <!--  TBD need to figure out 
+         1. how to load from a Jar in the ClassPath and as well  
+         2. Resolved for JAXB so it doesn't recompile imported schemas; rather uses the classes from the 
+            jars
+    -->
+    <!-- <xs:import namespace="http://www.vmware.com/vcloud/v1.5" 
+        schemaLocation="jar:file:/${HOME}/.ivy2-p2/cache/com.vmware.vcloud/rest-api-schemas/jars/rest-api-schemas-5.1.0.jar!/etc/1.5/schemas/vcloud/network.xsd"></xs:import> -->
+   
+   <xs:import namespace="http://www.vmware.com/vcloud/v1.5" schemaLocation="../vcloud/network.xsd"/>
+        
+   <xs:complexType name="IpAddressUsageType">
+        <xs:annotation>
+            <xs:documentation xml:lang="en"> Public IP Usage metrics for a Network Entity (e.g. Edge Gateway, or a VDC-Network) </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="Allocated" type="xs:int"/>
+            <xs:element name="Used" type="xs:int"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="IpAddressType">
+        <xs:annotation>
+            <xs:documentation xml:lang="en">
+                Gateway Public IP free and allocated.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="IpAddress" type="vcloud1.5:IpAddressType" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        Public IP address gateway.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Status" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        State of the Public IP - "Allocated" or "Used".
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>

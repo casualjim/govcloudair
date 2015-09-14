@@ -1,0 +1,420 @@
+<?xml version="1.0" encoding="UTF-8"?><xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://www.vmware.com/vcloud/networkservice/1.0" xmlns:vcloud1.5="http://www.vmware.com/vcloud/v1.5" xmlns:common="http://www.vmware.com/vcloud/networkservice/common/1.0" xmlns:ipam="http://www.vmware.com/vcloud/networkservice/ipam/1.0" xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" xmlns:meta="http://www.vmware.com/vcloud/meta" targetNamespace="http://www.vmware.com/vcloud/networkservice/1.0" elementFormDefault="qualified" version="1.0">
+
+	<!--  TBD need to figure out 
+		1. how to load from a Jar in the ClassPath and as well  
+		2. Resolved for JAXB so it doesn't recompile imported schemas; rather uses the classes from the 
+		jars
+	-->
+	<!-- <xs:import namespace="http://www.vmware.com/vcloud/v1.5" 
+		schemaLocation="jar:file:/${HOME}/.ivy2-p2/cache/com.vmware.vcloud/rest-api-schemas/jars/rest-api-schemas-5.1.0.jar!/etc/1.5/schemas/vcloud/entity.xsd"></xs:import> -->
+
+	<xs:import namespace="http://www.vmware.com/vcloud/networkservice/ipam/1.0" schemaLocation="ipam.xsd">
+	</xs:import>
+	<xs:import namespace="http://www.vmware.com/vcloud/networkservice/common/1.0" schemaLocation="entity.xsd">
+	</xs:import>
+	<xs:import namespace="http://www.vmware.com/vcloud/networkservice/common/1.0" schemaLocation="diagnostics.xsd">
+    </xs:import>
+  
+	<xs:import namespace="http://www.vmware.com/vcloud/v1.5">
+	</xs:import>
+    
+    
+	<xs:element name="EdgeGatewaySummaryList" type="EdgeGatewaySummaryListType"/>
+	<xs:complexType name="EdgeGatewaySummaryListType">
+		<xs:sequence>
+			<xs:element name="IsPartial" type="xs:boolean"/>
+			<xs:element name="EdgeGatewaySummary" type="EdgeGatewaySummaryType" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						List of Gateway Summary Information (usually in
+						a VDC)
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+    
+
+	<xs:complexType name="EdgeGatewaySummaryType">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">
+				Summary Information for a specific Edge Gateway
+			</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="common:VdcAwareEntityType">
+				<xs:sequence>
+					<xs:element name="EdgeGatewayName" type="xs:string">
+						<xs:annotation>
+							<xs:documentation xml:lang="en">
+								EdgeGateway Name
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="EdgeGatewayIP" type="vcloud1.5:IpAddressType">
+						<xs:annotation>
+							<xs:documentation xml:lang="en">
+								Gateway IP of this EdgeGateway
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="EdgeGatewayBackingConfig" type="xs:string">
+						<xs:annotation>
+							<xs:documentation xml:lang="en">
+								The Gateway Backing Config i.e "compact"
+								or "full"
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="HaEnabled" type="xs:boolean"/>
+					<xs:element name="NumberOfOrgNetworks" type="xs:int">
+						<xs:annotation>
+							<xs:documentation xml:lang="en">
+								Number of Org VDC Networks connected to
+								the EdgeGateway
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+                    <xs:element name="EdgeGatewayStatus" type="xs:string">
+                        <xs:annotation>
+                            <xs:documentation xml:lang="en">
+                                The status of this EdgeGateway. {READY, NOT-READY}
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+					<xs:element name="PublicIP" type="ipam:IpAddressUsageType">
+                        <xs:annotation>
+                            <xs:documentation xml:lang="en">
+                                The Usage count of IPs in the sub-allocation IP-pool of the EdgeGateway
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                    <xs:element name="IPAddressUsageList" type="EdgeGatewayIpAddressListType">
+                        <xs:annotation>
+                            <xs:documentation xml:lang="en">
+                                The List of IPs with Usage details, that are in the sub-allocation IP-pool of the EdgeGateway
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+
+	<xs:element name="EdgeGatewayIpAddressList" type="EdgeGatewayIpAddressListType"/>
+
+	<xs:complexType name="EdgeGatewayIpAddressListType">
+		<xs:sequence>
+			<xs:element name="EdgeGatewayIpAddress" type="EdgeGatewayIpAddressType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="EdgeGatewayIpAddressType">
+		<xs:complexContent>
+			<xs:annotation/>
+			<xs:extension base="ipam:IpAddressType">
+				<xs:sequence>
+					<xs:element name="GatewayInterfaceNetworkName" type="xs:string" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation xml:lang="en">
+								The name of the Gateway Interface Name
+								(as shown in VCD) that is associated to
+								a network
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="GatewayInterfaceNetworkUri" type="xs:string" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation xml:lang="en">
+								The name of the Gateway Interface URI
+								that is associated to a external network
+								which could be an 'Uplink' or a PLC.
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:element name="NetworkSummaryList" type="NetworkSummaryListType"/>
+	<xs:complexType name="NetworkSummaryListType">
+		<xs:annotation>
+			<xs:documentation xml:lang="en"/>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="NetworkSummary" type="NetworkSummaryType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="NetworkSummaryType">
+		<xs:complexContent>
+			<xs:extension base="common:VdcAwareEntityType">
+				<xs:sequence>
+					<xs:element name="FenceMode" type="xs:string">
+						<xs:annotation>
+							<xs:documentation xml:lang="en">
+								Allowed values are: "isolated",
+								"bridged" and "natRouted"
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="VmsAllocated" type="xs:int">
+						<xs:annotation>
+							<xs:documentation xml:lang="en"/>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="VmsPoweredOn" type="xs:int">
+						<xs:annotation>
+							<xs:documentation xml:lang="en"/>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="DefaultGateway" type="xs:string">
+						<xs:annotation>
+							<xs:documentation xml:lang="en"/>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="IpRanges" type="vcloud1.5:IpRangesType" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation xml:lang="en">
+								List of IP ranges this Network is
+								associated to (for 'isolated' and
+								'natRouted').
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:choice>
+						<xs:element name="RoutedNetwork" type="RoutedNetworkDetailsType" minOccurs="0" maxOccurs="1">
+							<xs:annotation>
+								<xs:documentation xml:lang="en">
+									If the fencemode is 'natRouted'
+								</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="DirectNetwork" type="DirectNetworkDetailsType" minOccurs="0" maxOccurs="1">
+							<xs:annotation>
+								<xs:documentation xml:lang="en">
+									If the fencemode is 'bridged'
+								</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="DefaultNetwork" type="xs:boolean">
+						<xs:annotation>
+							<xs:documentation xml:lang="en"/>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="DefaultGatewaySubnetmask" type="xs:string"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="RoutedNetworkDetailsType">
+		<xs:sequence>
+			<xs:element name="EdgeGatewayName" type="xs:string"/>
+			<xs:element name="EdgeGatewayAddress" type="xs:string"/>
+			<xs:element name="PublicIpUsage" type="ipam:IpAddressUsageType"/>
+			<xs:element name="EdgeGatewayHref" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="DirectNetworkDetailsType">
+		<xs:sequence>
+			<xs:element name="virtualCircuitId" type="xs:string" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+
+    <xs:element name="IpAddressAllocationList" type="IpAddressAllocationListType"/>
+
+    <xs:complexType name="IpAddressAllocationListType">
+        <xs:annotation>
+            <xs:documentation xml:lang="en"/>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="Allocation" type="IpAddressAllocationType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="Deallocation" type="IpAddressAllocationType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="IpAddressAllocationType">
+        <xs:sequence>
+            <xs:element name="GatewayInterfaceNetworkName" type="xs:string" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        The name of the Gateway Interface Name
+                        (as shown in VCD) that is associated to
+                        a network
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="GatewayInterfaceNetworkUri" type="xs:string" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        The name of the Gateway Interface URI
+                        that is associated to a external network
+                        which could be an 'Uplink' or a PLC.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:choice>
+	            <xs:element name="NumIpsToBeAllocated" type="xs:int">
+	                <xs:annotation>
+	                    <xs:documentation xml:lang="en">
+	                        The Number of IPs to be allocated to (or Deallocated from) the specified Gateway Interface.
+	                    </xs:documentation>
+	                </xs:annotation>
+	            </xs:element>
+	            <xs:sequence>
+		            <xs:element name="IPAddress" type="xs:string" minOccurs="0" maxOccurs="unbounded">
+		                <xs:annotation>
+		                    <xs:documentation xml:lang="en">
+		                        The IPs to be allocated to (or Deallocated from) the specified Gateway Interface.
+		                    </xs:documentation>
+		                </xs:annotation>
+		            </xs:element>
+	            </xs:sequence>
+	    	</xs:choice>
+        </xs:sequence>
+    </xs:complexType>
+    
+    
+    <!--
+        - - NEW SCHEMA CONSTRUCTS - - 
+    -->
+    
+     <!-- @@ New @@ -->
+    <xs:element name="EdgeGatewayExternalConnectionList" type="EdgeGatewayExternalConnectionListType"/>
+
+    <!-- @@ New @@ -->
+    <xs:complexType name="EdgeGatewayExternalConnectionListType">
+        <xs:annotation>
+            <xs:documentation xml:lang="en">
+                A description of a set of external gateways.
+            </xs:documentation>
+            <xs:appinfo>
+                <meta:content-type>application/vnd.vmware.vchs.edgeGatewayIp.list</meta:content-type>
+            </xs:appinfo>
+            <xs:documentation source="since">5.7</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="EdgeGatewayExternalConnection" type="EdgeGatewayExternalConnectionType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- @@ New @@ -->
+    <xs:complexType name="EdgeGatewayExternalConnectionType">
+        <xs:annotation/>
+        <xs:attribute name="ipAddress" type="xs:string">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    This external IP address, that's in the suballocation IP pool of this edge gateway, 
+                    that represents the connection.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="isUsedInRule" type="xs:boolean">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    True if the IP address is used in one or more edge gateway rules (e.g. NAT, Firewall); 
+                    false otherwise.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="externalNetworkName" type="xs:string">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    The name of the external network (which is the associated with the edge gateway), 
+                    to which this IP belongs.
+                    </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="externalNetworkRef" type="xs:anyURI">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    The URI of the external network (which is the associated with the edge gateway),
+                    to which this IP belongs.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+    
+    <!--  @@ New @@ -->
+    <xs:element name="ExternalIpAddressActionList" type="ExternalIpAddressActionListType"/>
+    <!--  @@ New @@ -->
+    <xs:complexType name="ExternalIpAddressActionListType">
+        <xs:annotation>
+            <xs:documentation xml:lang="en">
+                A description of a set of external IP addresses allocation and deallocation actions against a gateway.
+            </xs:documentation>
+            <xs:appinfo>
+                <meta:content-type>application/vnd.vmware.vchs.edgeGatewayIpAllocation.list</meta:content-type>
+            </xs:appinfo>
+            <xs:documentation source="since">5.7</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="Allocation" type="ExternalIpAddressAllocationType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="Deallocation" type="ExternalIpAddressDeallocationType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <!--  @@ New @@ -->
+    <xs:complexType name="ExternalIpAddressAllocationType">
+        <xs:sequence>
+            <xs:element name="ExternalNetworkName" type="xs:string" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        The name of the external network from which IP addresses should be allocated.
+                        Required only if the gateway is connected to more than one external network.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="ExternalNetworkRef" type="xs:anyURI" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        The URI of the external network from which IP addresses should be allocated.
+                        Required only if the gateway is connected to more than one external network.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="NumberOfExternalIpAddressesToAllocate" type="xs:int">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        The number of external IP addresses to be allocated from the specified external network.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <!--  @@ New @@ -->
+    <xs:complexType name="ExternalIpAddressDeallocationType">
+        <xs:sequence>
+            <xs:element name="ExternalNetworkName" type="xs:string" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        The name of the external network from which IP addresses should be deallocated.
+                        Required only if the gateway is connected to more than one external network.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="ExternalNetworkRef" type="xs:anyURI" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        The URI of the external network from which IP addresses should be deallocated.
+                        Required only if the gateway is connected to more than one external network.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="ExternalIpAddress" type="xs:string" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        A particular external IP address to be deallocated.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    
+</xs:schema>
