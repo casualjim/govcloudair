@@ -18,20 +18,29 @@ $:.unshift(File.expand_path(File.dirname(__FILE__)))
 
 require 'set'
 require 'nokogiri'
+require 'erb'
+require 'active_support/inflector'
 
 PRIMITIVES = %w(string byte bool int8 int16 int32 int64 int uint8 uint16 uint32 uint64 uint string float32 float64).to_set
 API_VERSIONS = ["56", "57", "511"]
 SCHEMA_PATH = File.join(File.expand_path(File.dirname(__FILE__)), "..", "schemas")
+TYPE_MAPPING = {
+  "xs:string" => "string",
+  "xs:anyURI" => "*url.URL",
+  "xs:int" => "int32",
+
+}
 COMMON_GO_CAPS = {
-  "API" =>   true,
+  "API"   => true,
 	"ASCII" => true,
-	"CPU" =>   true,
-	"CSS" =>   true,
-	"DNS" =>   true,
-	"EOF" =>   true,
-	"GUID" =>  true,
-	"HTML" =>  true,
-	"HTTP" =>  true,
+	"CPU"   => true,
+	"CSS"   => true,
+	"DNS"   => true,
+	"EOF"   => true,
+	"GUID"  => true,
+  "HREF"  => true,
+	"HTML"  => true,
+	"HTTP"  => true,
 	"HTTPS" => true,
 	"ID" =>    true,
 	"IP" =>    true,
@@ -61,6 +70,24 @@ COMMON_GO_CAPS = {
 	"XSS" =>   true
 }
 
+STRUCT_TEMPLATE = <<STRUCT
+type <%= name %> struct {
+  <% (ancestors||[]).each do |anc| %>
+    <%= anc %>
+  <% end %>
+
+  <% (properties||[]).each do |prop| %>
+    <%= prop.go_name %> <%= prop.go_type %> `xml:"<%= prop.name %><%= prop.attribute? ? ",attr" : "" %><%= prop.optional? ? ",omitempty" : "" %>"`
+  <% end %>
+}
+STRUCT
+
+COMMON_GO_CAPS.keys.each do |vl|
+  ActiveSupport::Inflector.inflections do |inf|
+    inf.acronym vl
+  end
+end
+
 class SimpleType
 
   def initialize(*args)
@@ -78,6 +105,10 @@ class SimpleType
   def to_s
     self.name
   end
+
+  def to_go
+    puts "simple type"
+  end
 end
 
 class TypeDocs
@@ -93,7 +124,6 @@ class ComplexType
 
   def initialize(*args)
     @parent, @node = args[0], args[1]
-    puts "object #{self.name}"
     @node.elements.each(&method(:parse_element))
   end
 
@@ -181,8 +211,14 @@ class ComplexType
     @node["type"]
   end
 
+
   def to_s
     self.name
+  end
+
+  def to_go
+    templ = ERB.new(STRUCT_TEMPLATE)
+    templ.run(binding)
   end
 
 end
@@ -192,7 +228,6 @@ class Property
 
   def initialize(ord, node, iattr)
     @ordinal, @node, @is_attribute = ord, node, !!iattr
-    puts "property #{self.name} #{self.type}"
   end
 
   def parse_element(el)
@@ -224,6 +259,16 @@ class Property
     @node["name"]
   end
 
+  def go_type
+    mapped = TYPE_MAPPING[self.type]
+    return mapped if mapped
+    self.type
+  end
+
+  def go_name
+    self.name.classify
+  end
+
   def to_s
     "#{self.name} -> #{self.type}"
   end
@@ -237,7 +282,6 @@ class SchemaReader
     @types = []
     @included_schemas = { args.last => self }
 
-    puts "parsing #{args.last}"
     schema = Nokogiri(File.read(@path))
     schema.root.elements.each(&method(:parse_element))
   end
@@ -259,7 +303,7 @@ class SchemaReader
         @included_schemas.merge! rdr.included_schemas
       end
     when "annotation"
-      puts "skipping annotation at top level"
+      #puts "skipping annotation at top level"
     else
       puts "unknown type #{el.name}"
     end
@@ -279,14 +323,19 @@ end
 
 if $0 == __FILE__
   types = []
+
+  # parse the schemas
   %w(base error service session vchs).each do |nm|
     rdr = SchemaReader.new("vcloudair56", "#{nm}.xsd")
-    puts "collected #{rdr.size} types"
-    puts rdr.types
+    #puts "collected #{rdr.size} types"
+    #puts rdr.types
     types.concat rdr.types
-    puts "reader has ServiceType: #{rdr.has?(:ServiceType)}"
-    puts "included schemas: #{rdr.included_schemas.keys}"
+    #puts "reader has ServiceType: #{rdr.has?(:ServiceType)}"
+    #puts "included schemas: #{rdr.included_schemas.keys}"
   end
 
-  puts types
+  types.each do |tpe|
+    #puts "#{tpe.name} has #{(tpe.properties||[]).size} properties and #{(tpe.ancestors||[]).size} ancestors"
+    tpe.to_go
+  end
 end
