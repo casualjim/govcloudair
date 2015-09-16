@@ -27,8 +27,9 @@ SCHEMA_PATH = File.join(File.expand_path(File.dirname(__FILE__)), "..", "schemas
 TYPE_MAPPING = {
   "xs:string" => "string",
   "xs:anyURI" => "*url.URL",
-  "xs:int" => "int32",
-
+  "xs:int"    => "int32",
+  "xs:long"   => "int64",
+  "xs:date"   => "time.Time"
 }
 COMMON_GO_CAPS = {
   "API"   => true,
@@ -70,16 +71,31 @@ COMMON_GO_CAPS = {
 	"XSS" =>   true
 }
 
+REFINE_TEMPLATE = <<REFINE
+type <%= go_name %> <%= go_type %><% if validatable? %>
+
+func (v <%= go_name %>) Validate(name string) error {
+  <% if min_length %>if len(v) < <%= min_length %>{
+    return fmt.Errorf("%q should be at least <%= min_length %> chars", name)
+  }<% end %><% if max_length %>if len(v) > <%= max_length %>{
+    return fmt.Errorf("%q should be at most <%= max_length %> chars", name)
+  }<% end %>
+}
+<% end %>
+REFINE
+
 STRUCT_TEMPLATE = <<STRUCT
-type <%= name %> struct {
-  <% (ancestors||[]).each do |anc| %>
-    <%= anc %>
+/* A <%= name %> <%= doc.text if doc %><% if doc and doc.since %>
+since: <%= doc.since %><% end %>*/
+type <%= go_name %> struct {
+  <% (ancestors||[]).each do |anc| %><%= anc %>
   <% end %>
 
-  <% (properties||[]).each do |prop| %>
-    <%= prop.go_name %> <%= prop.go_type %> `xml:"<%= prop.name %><%= prop.attribute? ? ",attr" : "" %><%= prop.optional? ? ",omitempty" : "" %>"`
+  <% (properties||[]).each do |prop| %><% if prop.doc and prop.doc.text %>/*<%= prop.doc.text %>
+  <% end %><%= prop.go_name %> <%= prop.go_type %> `xml:"<%= prop.name %><%= prop.attribute? ? ",attr" : "" %><%= prop.optional? ? ",omitempty" : "" %>"`
   <% end %>
 }
+
 STRUCT
 
 COMMON_GO_CAPS.keys.each do |vl|
@@ -89,25 +105,57 @@ COMMON_GO_CAPS.keys.each do |vl|
 end
 
 class SimpleType
+  attr_accessor :type, :min_length, :max_length, :pattern
 
   def initialize(*args)
     @node = args.first
+    @node.elements.each(&method(:parse_element))
+  end
+
+  def parse_element(el)
+    case el.name
+    when "restriction"
+      @type = el["base"]
+      el.elements.each(&method(:parse_restrictions))
+    when "annotation"
+      # skipping docs for now
+    end
+  end
+
+  def parse_restrictions(el)
+    case el.name
+    when "minLength"
+      @min_length = el["value"]
+    when "pattern"
+      @pattern = el["value"]
+    end
   end
 
   def name
     @node["name"]
   end
 
-  def type
-    @node["type"]
-  end
-
   def to_s
     self.name
   end
 
+  def go_type
+    mapped = TYPE_MAPPING[self.type]
+    return mapped if mapped
+    self.type
+  end
+
+  def go_name
+    self.name.classify
+  end
+
   def to_go
-    puts "simple type"
+    templ = ERB.new(REFINE_TEMPLATE)
+    templ.run(binding)
+  end
+
+  def validatable?
+    @min_length || @max_length || @pattern
   end
 end
 
@@ -182,12 +230,12 @@ class ComplexType
   def parse_documentation(at)
     case at["source"]
     when "since"
-      (@doc||=TypeDocs.new).since = at["source"]
+      (@doc||=TypeDocs.new).since = at.text
     when "modifiable"
       (@doc||=TypeDocs.new).modifiable = at.text
     else
       # only if the docs are english, we're interested
-      if at["xml:lang"] == "en"
+      if at["xml:lang"] == "en" or at.attributes.empty?
         (@doc||=TypeDocs.new).text = at.text
       else
         puts "unknown element: #{at.inspect}"
@@ -205,6 +253,10 @@ class ComplexType
 
   def name
     @node["name"]
+  end
+
+  def go_name
+    self.name.classify
   end
 
   def type
@@ -233,9 +285,28 @@ class Property
   def parse_element(el)
     case el.name
     when "annotation"
-      @doc = TypeDocs.new(el)
+      el.elements.each do |ann|
+        if ann.name == "documentation"
+          parse_documentation(ann)
+        end
+      end
     else
       puts "unknown element: #{el.inspect}"
+    end
+  end
+  def parse_documentation(at)
+    case at["source"]
+    when "since"
+      (@doc||=TypeDocs.new).since = at.text
+    when "modifiable"
+      (@doc||=TypeDocs.new).modifiable = at.text
+    else
+      # only if the docs are english, we're interested
+      if at["xml:lang"] == "en" or at.attributes.empty?
+        (@doc||=TypeDocs.new).text = at.text
+      else
+        puts "unknown element: #{at.inspect}"
+      end
     end
   end
 
@@ -252,17 +323,17 @@ class Property
   end
 
   def type
-    @node["type"]
+    @node["type"]||@node["ref"].gsub(/[^:]+:/, "")
   end
 
   def name
-    @node["name"]
+    @node["name"]||@node["ref"].gsub(/[^:]+:/, "")
   end
 
   def go_type
     mapped = TYPE_MAPPING[self.type]
     return mapped if mapped
-    self.type
+    self.type.gsub(/[^:]+:/, "")
   end
 
   def go_name
@@ -275,10 +346,12 @@ class Property
 end
 
 class SchemaReader
-  attr_accessor :path, :types, :included_schemas
+  attr_accessor :path, :types, :included_schemas, :path_parts
 
   def initialize(*args)
+    @path_parts = args
     @path = File.join(SCHEMA_PATH, *args)
+    puts "reading #{@path}"
     @types = []
     @included_schemas = { args.last => self }
 
@@ -298,12 +371,16 @@ class SchemaReader
     when "include"
       loc = el["schemaLocation"]
       unless @included_schemas.has_key? loc
-        rdr = SchemaReader.new(File.basename(File.dirname(@path)), loc)
+        path_parts = @path_parts.dup
+        path_parts[path_parts.size-1] = loc
+        rdr = SchemaReader.new(*path_parts)
         # flatten and lift the included schemas, so lookup is quick and easy
         @included_schemas.merge! rdr.included_schemas
       end
     when "annotation"
       #puts "skipping annotation at top level"
+    when "attribute"
+      # puts "skipping attribute at top level"
     else
       puts "unknown type #{el.name}"
     end
@@ -338,4 +415,23 @@ if $0 == __FILE__
     #puts "#{tpe.name} has #{(tpe.properties||[]).size} properties and #{(tpe.ancestors||[]).size} ancestors"
     tpe.to_go
   end
+
+  types.clear
+
+  {
+    "common"=>%w(simpleTypes complexTypes resource Meta),
+    "sc"=>%w(binding instance serviceplan),
+    "user"=> %w(User),
+    "" => %w(billableRates error metering)
+  }.each do |k, v|
+    v.each do |nm|
+      rdr = k ? SchemaReader.new("vcloudair57", k, "#{nm}.xsd") : SchemaReader.new("vcloudair57", "#{nm}.xsd")
+      types.concat rdr.types
+    end
+  end
+
+  types.each do |tpe|
+    tpe.to_go
+  end
+
 end
