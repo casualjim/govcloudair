@@ -72,7 +72,7 @@ COMMON_GO_CAPS = {
 }
 
 REFINE_TEMPLATE = <<REFINE
-type <%= go_name %> <%= go_type %><% if validatable? %>
+type <%= go_name %><% if enum? %>Enum<% end %> <%= go_type %><% if validatable? %>
 
 func (v <%= go_name %>) Validate(name string) error {
   <% if min_length %>if len(v) < <%= min_length %>{
@@ -81,6 +81,12 @@ func (v <%= go_name %>) Validate(name string) error {
     return fmt.Errorf("%q should be at most <%= max_length %> chars", name)
   }<% end %>
 }
+<% end %>
+<% unless (values||[]).empty? %>
+var (
+<% values.each do |val| %>
+  <%= val.classify %><%= go_name %> = <%= go_name %>Enum("<%= val %>")<% end %>
+)
 <% end %>
 REFINE
 
@@ -92,7 +98,7 @@ type <%= go_name %> struct {
   <% end %>
 
   <% (properties||[]).each do |prop| %><% if prop.doc and prop.doc.text %>/*<%= prop.doc.text %>
-  <% end %><%= prop.go_name %> <%= prop.go_type %> `xml:"<%= prop.name %><%= prop.attribute? ? ",attr" : "" %><%= prop.optional? ? ",omitempty" : "" %>"`
+  <% end %><%= prop.go_name %> <% if prop.slice? %>[]<% end %><%= prop.go_type %> `xml:"<%= prop.name %><%= prop.attribute? ? ",attr" : "" %><%= prop.optional? ? ",omitempty" : "" %>"`
   <% end %>
 }
 
@@ -105,7 +111,7 @@ COMMON_GO_CAPS.keys.each do |vl|
 end
 
 class SimpleType
-  attr_accessor :type, :min_length, :max_length, :pattern
+  attr_accessor :type, :min_length, :max_length, :pattern, :values
 
   def initialize(*args)
     @node = args.first
@@ -128,6 +134,8 @@ class SimpleType
       @min_length = el["value"]
     when "pattern"
       @pattern = el["value"]
+    when "enumeration"
+      (@values||=[]) << el["value"]
     end
   end
 
@@ -157,6 +165,11 @@ class SimpleType
   def validatable?
     @min_length || @max_length || @pattern
   end
+
+  def enum?
+    !(@values||[]).empty?
+  end
+
 end
 
 class TypeDocs
@@ -188,9 +201,20 @@ class ComplexType
       (@properties||=[]) << Property.new(nil, el, true)
     when "complexContent"
       el.elements.each(&method(:parse_complex_content))
+    when "simpleContent"
+      el.elements.each(&method(:parse_simple_content))
     else
-      puts "unknown element: #{el.inspect}"
+      puts "#{self.class} unknown element: #{el.to_xml}"
     end
+  end
+
+  def parse_simple_content(el)
+      case el.name
+      when "extension"
+        el.elements.each(&method(:parse_element))
+      else
+        puts "#{self.class} simple content unknown element: #{el.to_xml}"
+      end
   end
 
   def parse_sequence(el, i)
@@ -210,11 +234,13 @@ class ComplexType
 
   def parse_complex_content(el)
     case el.name
+    when "annotation"
+      el.elements.each(&method(:parse_annotation))
     when "extension"
       (@ancestors||=[]) << el["base"]
       el.elements.each(&method(:parse_element))
     else
-      puts "unknown element #{el.inspect}"
+      puts "#{self.class} complex content unknown element #{el.to_xml}"
     end
   end
 
@@ -238,7 +264,7 @@ class ComplexType
       if at["xml:lang"] == "en" or at.attributes.empty?
         (@doc||=TypeDocs.new).text = at.text
       else
-        puts "unknown element: #{at.inspect}"
+        puts "#{self.class} documentation unknown element: #{at.to_xml}"
       end
     end
   end
@@ -291,9 +317,10 @@ class Property
         end
       end
     else
-      puts "unknown element: #{el.inspect}"
+      puts "#{self.class} unknown element: #{el.to_xml}"
     end
   end
+
   def parse_documentation(at)
     case at["source"]
     when "since"
@@ -305,7 +332,7 @@ class Property
       if at["xml:lang"] == "en" or at.attributes.empty?
         (@doc||=TypeDocs.new).text = at.text
       else
-        puts "unknown element: #{at.inspect}"
+        puts "unknown element: #{at.to_xml}"
       end
     end
   end
@@ -320,6 +347,10 @@ class Property
 
   def attribute?
     @is_attribute
+  end
+
+  def slice?
+    !!@ordinal
   end
 
   def type
@@ -350,11 +381,15 @@ class SchemaReader
 
   def initialize(*args)
     @path_parts = args
-    @path = File.join(SCHEMA_PATH, *args)
+    @path = File.join(*args)
     puts "reading #{@path}"
     @types = []
-    @included_schemas = { args.last => self }
+    @included_schemas = { File.basename(@path) => self }
 
+    parse
+  end
+
+  def parse()
     schema = Nokogiri(File.read(@path))
     schema.root.elements.each(&method(:parse_element))
   end
@@ -370,10 +405,8 @@ class SchemaReader
       # luckily this isn't java
     when "include"
       loc = el["schemaLocation"]
-      unless @included_schemas.has_key? loc
-        path_parts = @path_parts.dup
-        path_parts[path_parts.size-1] = loc
-        rdr = SchemaReader.new(*path_parts)
+      unless @included_schemas.has_key? File.basename(loc)
+        rdr = SchemaReader.new(File.dirname(@path), loc)
         # flatten and lift the included schemas, so lookup is quick and easy
         @included_schemas.merge! rdr.included_schemas
       end
@@ -381,8 +414,17 @@ class SchemaReader
       #puts "skipping annotation at top level"
     when "attribute"
       # puts "skipping attribute at top level"
+    when "import"
+      loc = el["schemaLocation"]
+      unless @included_schemas.has_key? File.basename(loc)
+        #path_parts = @path_parts.dup
+        #path_parts[path_parts.size-1] = loc
+        rdr = SchemaReader.new(File.dirname(@path), loc)
+        # flatten and lift the included schemas, so lookup is quick and easy
+        @included_schemas.merge! rdr.included_schemas
+      end
     else
-      puts "unknown type #{el.name}"
+      puts "#{self.class} unknown type #{el.name}"
     end
   end
 
@@ -403,7 +445,7 @@ if $0 == __FILE__
 
   # parse the schemas
   %w(base error service session vchs).each do |nm|
-    rdr = SchemaReader.new("vcloudair56", "#{nm}.xsd")
+    rdr = SchemaReader.new(SCHEMA_PATH, "vcloudair56", "#{nm}.xsd")
     #puts "collected #{rdr.size} types"
     #puts rdr.types
     types.concat rdr.types
@@ -425,7 +467,7 @@ if $0 == __FILE__
     "" => %w(billableRates error metering)
   }.each do |k, v|
     v.each do |nm|
-      rdr = k ? SchemaReader.new("vcloudair57", k, "#{nm}.xsd") : SchemaReader.new("vcloudair57", "#{nm}.xsd")
+      rdr = k ? SchemaReader.new(SCHEMA_PATH, "vcloudair57", k, "#{nm}.xsd") : SchemaReader.new(SCHEMA_PATH, "vcloudair57", "#{nm}.xsd")
       types.concat rdr.types
     end
   end
