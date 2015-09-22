@@ -13,6 +13,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
+
+# This does not generate working code, but it does get you 90% of the way there.
+# You should review the generated code VERY carefully and make sure that the types match up.
+# Since this generates go there are certain things that will trigger compilation failures.
+#
+# The xsd's that are used for doing the code generation sometimes don't even generate correct java.
+# So make sure you double and triple check the code that was generated, and make the necessary edits.
+#
+# Luckily most of the things that are generated don't change for years, some of these got their last update back
+# in 2009 so it's not like you'll be doing these manual edits daily or even monthly.
 
 $:.unshift(File.expand_path(File.dirname(__FILE__)))
 
@@ -21,54 +32,67 @@ require 'nokogiri'
 require 'erb'
 require 'active_support/inflector'
 
-PRIMITIVES = %w(string byte bool int8 int16 int32 int64 int uint8 uint16 uint32 uint64 uint string float32 float64).to_set
-API_VERSIONS = ["56", "57", "511"]
 SCHEMA_PATH = File.join(File.expand_path(File.dirname(__FILE__)), "..", "schemas")
-TYPE_MAPPING = {
-  "xs:string" => "string",
-  "xs:anyURI" => "*url.URL",
-  "xs:int"    => "int32",
-  "xs:long"   => "int64",
-  "xs:date"   => "time.Time"
+DEFAULT_GO_TYPES = {
+  "xs:boolean"          => "bool",
+  "xs:string"           => "string",
+  "xs:normalizedString" => "string",
+  "xs:token"            => "string",
+  "xs:anyURI"           => "*url.URL",
+  "xs:byte"             => "int8",
+  "xs:short"            => "int16",
+  "xs:int"              => "int32",
+  "xs:integer"          => "int",
+  "xs:long"             => "int64",
+  "xs:float"            => "float32",
+  "xs:double"           => "float64",
+  "xs:decimal"          => "float64",
+  "xs:unsignedLong"     => "uint64",
+  "xs:unsignedInt"      => "uint32",
+  "xs:unsignedShort"    => "uint16",
+  "xs:unsignedByte"     => "uint8",
+  "xs:date"             => "time.Time",
+  "xs:base64Binary"     => "[]byte",
+  "xs:hexBinary"        => "[]byte",
 }
 COMMON_GO_CAPS = {
   "API"   => true,
-	"ASCII" => true,
-	"CPU"   => true,
-	"CSS"   => true,
-	"DNS"   => true,
-	"EOF"   => true,
-	"GUID"  => true,
+  "ASCII" => true,
+  "CPU"   => true,
+  "CSS"   => true,
+  "DNS"   => true,
+  "EOF"   => true,
+  "GUID"  => true,
   "HREF"  => true,
-	"HTML"  => true,
-	"HTTP"  => true,
-	"HTTPS" => true,
-	"ID" =>    true,
-	"IP" =>    true,
-	"JSON" =>  true,
-	"LHS" =>   true,
-	"QPS" =>   true,
-	"RAM" =>   true,
-	"RHS" =>   true,
-	"RPC" =>   true,
-	"SLA"  =>   true,
-	"SMTP" =>  true,
-	"SQL" =>   true,
-	"SSH" =>   true,
-	"TCP" =>   true,
-	"TLS" =>   true,
-	"TTL" =>   true,
-	"UDP" =>   true,
-	"UI" =>    true,
-	"UID" =>   true,
-	"UUID" =>  true,
-	"URI" =>   true,
-	"URL" =>   true,
-	"UTF8" =>  true,
-	"VM" =>    true,
-	"XML" =>   true,
-	"XSRF" =>  true,
-	"XSS" =>   true
+  "HTML"  => true,
+  "HTTP"  => true,
+  "HTTPS" => true,
+  "ID"    => true,
+  "IP"    => true,
+  "JSON"  => true,
+  "LHS"   => true,
+  "QPS"   => true,
+  "RAM"   => true,
+  "RHS"   => true,
+  "RPC"   => true,
+  "SLA"   => true,
+  "SMTP"  => true,
+  "SQL"   => true,
+  "SSH"   => true,
+  "TCP"   => true,
+  "TLS"   => true,
+  "TTL"   => true,
+  "UDP"   => true,
+  "UI"    => true,
+  "UID"   => true,
+  "UUID"  => true,
+  "URI"   => true,
+  "URL"   => true,
+  "UTF8"  => true,
+  "VM"    => true,
+  "XML"   => true,
+  "XSRF"  => true,
+  "XSS"   => true
 }
 
 REFINE_TEMPLATE = <<REFINE
@@ -148,7 +172,7 @@ class SimpleType
   end
 
   def go_type
-    mapped = TYPE_MAPPING[self.type]
+    mapped = DEFAULT_GO_TYPES[self.type]
     return mapped if mapped
     self.type
   end
@@ -237,7 +261,7 @@ class ComplexType
     when "annotation"
       el.elements.each(&method(:parse_annotation))
     when "extension"
-      (@ancestors||=[]) << el["base"]
+      (@ancestors||=[]) << el["base"].gsub(/[^:]+:/, "").classify
       el.elements.each(&method(:parse_element))
     else
       puts "#{self.class} complex content unknown element #{el.to_xml}"
@@ -255,10 +279,11 @@ class ComplexType
 
   def parse_documentation(at)
     case at["source"]
-    when "since"
+    when "since", "added-in"
       (@doc||=TypeDocs.new).since = at.text
     when "modifiable"
       (@doc||=TypeDocs.new).modifiable = at.text
+    when "deprecated", "internal"
     else
       # only if the docs are english, we're interested
       if at["xml:lang"] == "en" or at.attributes.empty?
@@ -286,7 +311,7 @@ class ComplexType
   end
 
   def type
-    @node["type"]
+    @node["type"].classify
   end
 
 
@@ -323,10 +348,11 @@ class Property
 
   def parse_documentation(at)
     case at["source"]
-    when "since"
+    when "since", "added-in"
       (@doc||=TypeDocs.new).since = at.text
     when "modifiable"
       (@doc||=TypeDocs.new).modifiable = at.text
+    when "deprecated"
     else
       # only if the docs are english, we're interested
       if at["xml:lang"] == "en" or at.attributes.empty?
@@ -338,7 +364,7 @@ class Property
   end
 
   def required?
-    @node["use"] == "required"
+    @node["use"] == "required" || (@node["minOccurs"] =~ /\d+/ && @node["minOccurs"].to_i == 0)
   end
 
   def optional?
@@ -350,7 +376,7 @@ class Property
   end
 
   def slice?
-    !!@ordinal
+    @node["maxOccurs"] == "unbounded" || (@node["maxOccurs"] =~ /\d+/ && @node["maxOccurs"].to_i > 1)
   end
 
   def type
@@ -362,9 +388,9 @@ class Property
   end
 
   def go_type
-    mapped = TYPE_MAPPING[self.type]
+    mapped = DEFAULT_GO_TYPES[self.type]
     return mapped if mapped
-    self.type.gsub(/[^:]+:/, "")
+    self.type.gsub(/[^:]+:/, "").classify
   end
 
   def go_name
@@ -385,8 +411,6 @@ class SchemaReader
     puts "reading #{@path}"
     @types = []
     @included_schemas = { File.basename(@path) => self }
-
-    parse
   end
 
   def parse()
@@ -405,8 +429,10 @@ class SchemaReader
       # luckily this isn't java
     when "include"
       loc = el["schemaLocation"]
-      unless @included_schemas.has_key? File.basename(loc)
+      unless !loc or /^http/ =~ loc or @included_schemas.has_key? File.basename(loc)
         rdr = SchemaReader.new(File.dirname(@path), loc)
+        rdr.included_schemas.merge! @included_schemas
+        rdr.parse
         # flatten and lift the included schemas, so lookup is quick and easy
         @included_schemas.merge! rdr.included_schemas
       end
@@ -416,10 +442,12 @@ class SchemaReader
       # puts "skipping attribute at top level"
     when "import"
       loc = el["schemaLocation"]
-      unless @included_schemas.has_key? File.basename(loc)
+      unless !loc or /^http/ =~ loc or @included_schemas.has_key? File.basename(loc)
         #path_parts = @path_parts.dup
         #path_parts[path_parts.size-1] = loc
         rdr = SchemaReader.new(File.dirname(@path), loc)
+        rdr.included_schemas.merge! @included_schemas
+        rdr.parse
         # flatten and lift the included schemas, so lookup is quick and easy
         @included_schemas.merge! rdr.included_schemas
       end
@@ -446,6 +474,7 @@ if $0 == __FILE__
   # parse the schemas
   %w(base error service session vchs).each do |nm|
     rdr = SchemaReader.new(SCHEMA_PATH, "vcloudair56", "#{nm}.xsd")
+    rdr.parse
     #puts "collected #{rdr.size} types"
     #puts rdr.types
     types.concat rdr.types
@@ -468,6 +497,7 @@ if $0 == __FILE__
   }.each do |k, v|
     v.each do |nm|
       rdr = k ? SchemaReader.new(SCHEMA_PATH, "vcloudair57", k, "#{nm}.xsd") : SchemaReader.new(SCHEMA_PATH, "vcloudair57", "#{nm}.xsd")
+      rdr.parse
       types.concat rdr.types
     end
   end
@@ -476,4 +506,23 @@ if $0 == __FILE__
     tpe.to_go
   end
 
+  #types.clear
+
+  #{
+    #"admin" => %w(admin amqp blockingExtensions event providerVdc upload user vCloudEntities),
+    #"extension" => %w(notification services settings taskExtensionRequest vmwextensions),
+    #"master" => %w(master),
+    #"networkservice" => %w(diagnostics entity ipam network),
+    #"vcloud" => %w(common catalog catalogItem disk entity file hybrid media metrics mksTicket network organization organizationList productSectionList queryRecordView queryReferenceView resourceEntity screenTicket services session task tasksList vApp vAppTemplate vcloud vdc vdcStorageProfile vendorServices vms)
+  #}.each do |k, v|
+    #v.each do |nm|
+      #rdr = SchemaReader.new(SCHEMA_PATH, "vcloudair511/1.5/schemas", k, "#{nm}.xsd")
+      #rdr.parse
+      #types.concat rdr.types
+    #end
+  #end
+
+  ##types.each do |tpe|
+    ##tpe.to_go
+  ##end
 end
