@@ -6,6 +6,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -30,6 +31,10 @@ var (
 	JSONMimeV57 = "application/json;version=5.7"
 	// AnyXMLMime511 the wildcard xml mime for version 5.11 of the API
 	AnyXMLMime511 = "application/*+xml;version=5.11"
+	// Version511 the 5.11 version
+	Version511 = "5.11"
+	// Version is the default version number
+	Version = Version511
 )
 
 const (
@@ -94,7 +99,12 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	b, err := json.MarshalIndent(orgList, "", "  ")
+	org, err := orgList.FirstOrg()
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	b, err := json.MarshalIndent(org, "", "  ")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -146,6 +156,7 @@ type authenticatedClient struct {
 	Info            struct {
 		Instances []accountInstance `json:"instances"`
 	}
+	http *http.Client
 }
 
 func (a *authenticatedClient) JSONRequest(method, path string, result interface{}) error {
@@ -274,22 +285,24 @@ func (s *Session) OrgList() (*OrgList, error) {
 	if err := s.XMLRequest(HTTPGet, lnk.HREF, MimeOrgList, nil, &orgList); err != nil {
 		return nil, err
 	}
+	orgList.session = s
 
 	return &orgList, nil
 }
 
 func (s *Session) XMLRequest(method, url, tpe string, body, result interface{}) error {
-	var buf *bytes.Buffer
+
+	r, _ := http.NewRequest(method, url, nil)
 	if body != nil {
-		buf = bytes.NewBuffer(nil)
+		buf := bytes.NewBuffer(nil)
 		enc := xml.NewEncoder(buf)
 		if err := enc.Encode(body); err != nil {
 			return err
 		}
+		r, _ = http.NewRequest(method, url, buf)
 	}
 
-	r, _ := http.NewRequest(method, url, buf)
-	r.Header.Set(HeaderAccept, tpe)
+	r.Header.Set(HeaderAccept, tpe+";version="+Version)
 	if body != nil {
 		r.Header.Set("Content-Type", "application/xml")
 	}
@@ -313,11 +326,17 @@ func (s *Session) XMLRequest(method, url, tpe string, body, result interface{}) 
 		fmt.Println(string(dr))
 	}
 
+	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+	fmt.Println(string(b))
+
 	if resp.StatusCode/100 != 2 {
 		log.Fatalf("Could not complete request with vca, because (status %d) %s\n", resp.StatusCode, resp.Status)
 	}
 
-	dec := xml.NewDecoder(resp.Body)
+	dec := xml.NewDecoder(bytes.NewReader(b))
 	if err := dec.Decode(result); err != nil {
 		return err
 	}
@@ -361,7 +380,22 @@ type OrgList struct {
 	Link LinkList `xml:"Link,omitempty"`
 
 	// OrgListType
-	Orgs []Org `xml:"Org,omitempty"`
+	Orgs []Reference `xml:"Org,omitempty"`
+
+	session *Session `xml:"-" json:"-"`
+}
+
+func (o *OrgList) FirstOrg() (*Org, error) {
+	if len(o.Orgs) == 0 {
+		return nil, errors.New("orgList has no orgs, can't get the first")
+	}
+
+	var org Org
+	if err := o.session.XMLRequest(HTTPGet, o.Orgs[0].HREF, o.Orgs[0].Type, nil, &org); err != nil {
+		return nil, err
+	}
+
+	return &org, nil
 }
 
 // Reference is a reference to a resource. Contains an href attribute and optional name and type attributes.
@@ -392,7 +426,7 @@ type Org struct {
 	Link LinkList `xml:"Link,omitempty"`
 
 	// entitytype
-	Description sring  `xml:"Description,omitempty"`
+	Description string `xml:"Description,omitempty"`
 	Tasks       []Task `xml:"Tasks>Task,omitempty"`
 
 	// orgtype
