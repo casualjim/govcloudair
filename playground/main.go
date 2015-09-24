@@ -35,6 +35,12 @@ var (
 	Version511 = "5.11"
 	// Version is the default version number
 	Version = Version511
+
+	// Public Catalog Name
+	PublicCatalog = "Public Catalog"
+
+	// Default Catalog Name
+	DefaultCatalog = "Default Catalog"
 )
 
 const (
@@ -52,10 +58,15 @@ const (
 )
 
 const (
+	RelAdd            = "add"
+	RelCopy           = "copy"
+	RelMove           = "move"
+	RelUp             = "up"
 	RelDown           = "down"
 	RelRemove         = "remove"
 	RelEntityResolver = "entityResolver"
 	RelExtensibility  = "down:extensibility"
+	RelControlAccess  = "controlAccess"
 )
 
 const (
@@ -104,7 +115,17 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	b, err := json.MarshalIndent(org, "", "  ")
+	catalog, err := org.RetrievePublicCatalog()
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	catalogItem, err := catalog.ItemForName("VMware Photon OS - Tech Preview 2")
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	b, err := json.MarshalIndent(catalogItem, "", "  ")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -359,6 +380,20 @@ func (l LinkList) ForType(tpe, rel string) *Link {
 	return nil
 }
 
+func (l LinkList) ForName(name, tpe, rel string) *Link {
+	if rel == "" {
+		rel = RelDown
+	}
+
+	for _, lnk := range l {
+		if lnk != nil && lnk.Name == name && lnk.Type == tpe && lnk.Rel == rel {
+			return lnk
+		}
+	}
+
+	return nil
+}
+
 // Link extends reference type by adding relation attribute. Defines a hyper-link with a relationship, hyper-link reference, and an optional MIME type.
 // Type: LinkType
 // Namespace: http://www.vmware.com/vcloud/v1.5
@@ -377,7 +412,7 @@ type OrgList struct {
 	Type string `xml:"type,attr,omitempty"`
 
 	// ResourceType
-	Link LinkList `xml:"Link,omitempty"`
+	Links LinkList `xml:"Link,omitempty"`
 
 	// OrgListType
 	Orgs []Reference `xml:"Org,omitempty"`
@@ -395,6 +430,7 @@ func (o *OrgList) FirstOrg() (*Org, error) {
 		return nil, err
 	}
 
+	org.session = o.session
 	return &org, nil
 }
 
@@ -423,7 +459,7 @@ type Org struct {
 	Name         string `xml:"name,attr"`
 
 	// resourcetype
-	Link LinkList `xml:"Link,omitempty"`
+	Links LinkList `xml:"Link,omitempty"`
 
 	// entitytype
 	Description string `xml:"Description,omitempty"`
@@ -432,6 +468,31 @@ type Org struct {
 	// orgtype
 	FullName  string `xml:"FullName"`
 	IsEnabled bool   `xml:"IsEnabled,omitempty"`
+
+	session *Session
+}
+
+func (o *Org) RetrievePublicCatalog() (*Catalog, error) {
+	return o.RetrieveCatalog(PublicCatalog)
+}
+
+func (o *Org) RetrieveDefaultCatalog() (*Catalog, error) {
+	return o.RetrieveCatalog(DefaultCatalog)
+}
+
+func (o *Org) RetrieveCatalog(name string) (*Catalog, error) {
+	lnk := o.Links.ForName(name, MimeCatalog, RelDown)
+	if lnk == nil {
+		return nil, fmt.Errorf("no catalog link found for %q", o.ID)
+	}
+
+	var catalog Catalog
+	if err := o.session.XMLRequest(HTTPGet, lnk.HREF, lnk.Type, nil, &catalog); err != nil {
+		return nil, err
+	}
+
+	catalog.session = o.session
+	return &catalog, nil
 }
 
 type Task struct {
@@ -456,10 +517,10 @@ type Task struct {
 	StartTime        string `xml:"startTime,attr,omitempty"`
 	Status           string `xml:"status,attr,omitempty"`
 
-	// resourcetype
-	Link LinkList `xml:"Link,omitempty"`
+	// ResourceType
+	Links LinkList `xml:"Link,omitempty"`
 
-	// entitytype
+	// EntityType
 	Description string `xml:"Description,omitempty"`
 	Tasks       []Task `xml:"Tasks>Task,omitempty"`
 
@@ -471,6 +532,23 @@ type Task struct {
 	Progress     int         `xml:Progress,omitempty`
 	Params       interface{} `xml:Params,omitempty`
 	Details      string      `xml:Details,omitempty`
+}
+
+// Owner represents the owner of this entity.
+// Type: OwnerType
+// Namespace: http://www.vmware.com/vcloud/v1.5
+// Description: Represents the owner of this entity.
+// Since: 1.5
+type Owner struct {
+	// ResourceType
+	HREF string `xml:"href,attr,omitempty"`
+	Type string `xml:"type,attr,omitempty"`
+
+	// ResourceType
+	Links LinkList `xml:"Link,omitempty"`
+
+	// OwnerType
+	User *Reference `xml:"User"`
 }
 
 // Error is the standard error message type used in the vCloud REST API.
@@ -499,4 +577,121 @@ type TenantError struct {
 	MinorErrorCode          string `xml:"minorErrorCode,attr"`
 	VendorSpecificErrorCode string `xml:"vendorSpecificErrorCode,attr,omitempty"`
 	StackTrace              string `xml:"stackTrace,attr,omitempty"`
+}
+
+// Catalog represents the user view of a Catalog object.
+// Type: CatalogType
+// Namespace: http://www.vmware.com/vcloud/v1.5
+// Description: Represents the user view of a Catalog object.
+// Since: 0.9
+type Catalog struct {
+	// ResourceType
+	HREF string `xml:"href,attr,omitempty"`
+	Type string `xml:"type,attr,omitempty"`
+
+	// IdentifiableResourceType
+	ID           string `xml:"id,attr,omitempty"`
+	OperationKey string `xml:"operationKey,attr,omitempty"`
+
+	// EntityType
+	Name string `xml:"name,attr"`
+
+	// ResourceType
+	Links LinkList `xml:"Link,omitempty"`
+
+	// EntityType
+	Description string `xml:"Description,omitempty"`
+	Tasks       []Task `xml:"Tasks>Task,omitempty"`
+
+	// CatalogType
+	Owner         *Owner      `xml:"Owner,omitempty"`
+	CatalogItems  []Reference `xml:"CatalogItems>CatalogItem"`
+	IsPublished   bool        `xml:"IsPublished"`
+	DateCreated   string      `xml:"DateCreated"`
+	VersionNumber int64       `xml:"VersionNumber"`
+
+	session *Session `xml:"-" json:"-"`
+}
+
+func (c *Catalog) ItemForName(name string) (*CatalogItem, error) {
+	for _, p := range c.CatalogItems {
+		if p.Name == name {
+			var ci CatalogItem
+			if err := c.session.XMLRequest(HTTPGet, p.HREF, p.Type, nil, &ci); err != nil {
+				return nil, err
+			}
+
+			ci.session = c.session
+			return &ci, nil
+		}
+	}
+
+	return nil, fmt.Errorf("no item found in catalog for %q", name)
+}
+
+// CatalogItem contains a reference to a VappTemplate or Media object and related metadata.
+// Type: CatalogItemType
+// Namespace: http://www.vmware.com/vcloud/v1.5
+// Description: Contains a reference to a VappTemplate or Media object and related metadata.
+// Since: 0.9
+type CatalogItem struct {
+	// ResourceType
+	HREF string `xml:"href,attr,omitempty"`
+	Type string `xml:"type,attr,omitempty"`
+
+	// IdentifiableResourceType
+	ID           string `xml:"id,attr,omitempty"`
+	OperationKey string `xml:"operationKey,attr,omitempty"`
+
+	// EntityType
+	Name string `xml:"name,attr"`
+
+	// CatalogItemType
+	Size int64 `xml:"size,attr,omitempty"`
+
+	// ResourceType
+	Links LinkList `xml:"Link,omitempty"`
+
+	// EntityType
+	Description string `xml:"Description,omitempty"`
+	Tasks       []Task `xml:"Tasks>Task,omitempty"`
+
+	// CatalogItemType
+	Entity        *Entity    `xml:"Entity"`
+	Properties    []Property `xml:"Property,omitempty"`
+	DateCreated   string     `xml:"DateCreated,omitempty"`
+	VersionNumber int64      `xml:"VersionNumber,omitempty"`
+
+	session *Session `xml:"-" json:"-"`
+}
+
+// Property
+type Property struct {
+	Key   string `xml:"key,attr"`
+	Value string `xml:",innerxml"`
+}
+
+// Entity is a basic entity type in the vCloud object model. Includes a name, an optional description, and an optional list of links.
+// Type: EntityType
+// Namespace: http://www.vmware.com/vcloud/v1.5
+// Description: Basic entity type in the vCloud object model. Includes a name, an optional description, and an optional list of links.
+// Since: 0.9
+type Entity struct {
+	// ResourceType
+	HREF string `xml:"href,attr,omitempty"`
+	Type string `xml:"type,attr,omitempty"`
+
+	// IdentifiableResourceType
+	ID           string `xml:"id,attr,omitempty"`
+	OperationKey string `xml:"operationKey,attr,omitempty"`
+
+	// EntityType
+	Name string `xml:"name,attr"`
+
+	// ResourceType
+	Links LinkList `xml:"Link,omitempty"`
+
+	// EntityType
+	Description string `xml:"Description,omitempty"`
+	Tasks       []Task `xml:"Tasks>Task,omitempty"`
 }
