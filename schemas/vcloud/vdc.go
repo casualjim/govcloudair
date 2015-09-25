@@ -1,11 +1,11 @@
 package vcloud
 
-// Vdc represents the user view of an organization vDC.
+// A VDC represents the user view of an organization vDC.
 // Type: VdcType
 // Namespace: http://www.vmware.com/vcloud/v1.5
 // Description: Represents the user view of an organization vDC.
 // Since: 0.9
-type Vdc struct {
+type VDC struct {
 	// ResourceType
 	HREF string `xml:"href,attr,omitempty"`
 	Type string `xml:"type,attr,omitempty"`

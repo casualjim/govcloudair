@@ -73,12 +73,17 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	catalogItem, err := catalog.ItemForName("VMware Photon OS - Tech Preview 2", ses)
+	_, err = catalog.ItemForName("VMware Photon OS - Tech Preview 2", ses)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	b, err := json.MarshalIndent(catalogItem, "", "  ")
+	vdc, err := org.FindVDC("VDC1", ses)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	b, err := json.MarshalIndent(vdc, "", "  ")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -246,7 +251,7 @@ type Session struct {
 	User   string `xml:"user,attr,omitempty"`
 	UserID string `xml:"userId,attr,omitempty"`
 
-	Token string `xml:"-"`
+	Token string `xml:"-" json:"-"`
 }
 
 func (s *Session) OrgList() (*vcloud.OrgList, error) {

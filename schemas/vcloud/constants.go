@@ -23,8 +23,12 @@ const (
 	// MimeOrg mime for org
 	MimeOrg = "application/vnd.vmware.vcloud.org+xml"
 	// MimeCatalog mime for catalog
-	MimeCatalog          = "application/vnd.vmware.vcloud.catalog+xml"
-	MimeVDC              = "application/vnd.vmware.vcloud.vdc+xml"
+	MimeCatalog = "application/vnd.vmware.vcloud.catalog+xml"
+	// MimeVDC mime for a VDC
+	MimeVDC = "application/vnd.vmware.vcloud.vdc+xml"
+	// MimeInstantiateVAppTemplate mime fore instantiate VApp template params
+	MimeInstantiateVAppTemplate = "application/vnd.vmware.vcloud.instantiateVAppTemplateParams+xml"
+	// MimeQueryRecords mime for the query records
 	MimeQueryRecords     = "application/vnd.vmware.vchs.query.records+xml"
 	MimeAPIExtensibility = "application/vnd.vmware.vcloud.apiextensibility+xml"
 	MimeEntity           = "application/vnd.vmware.vcloud.entity+xml"

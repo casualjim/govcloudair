@@ -79,6 +79,19 @@ func (o *Org) RetrieveCatalog(name string, client XMLClient) (*Catalog, error) {
 	if err := client.XMLRequest(HTTPGet, lnk.HREF, lnk.Type, nil, &catalog); err != nil {
 		return nil, err
 	}
-
 	return &catalog, nil
+}
+
+// FindVDC finds the named VDC for this org
+func (o *Org) FindVDC(name string, client XMLClient) (*VDC, error) {
+	lnk := o.Links.ForName(name, MimeVDC, RelDown)
+	if lnk == nil {
+		return nil, fmt.Errorf("no VDC link found for %q", o.ID)
+	}
+
+	var vdc VDC
+	if err := client.XMLRequest(HTTPGet, lnk.HREF, lnk.Type, nil, &vdc); err != nil {
+		return nil, err
+	}
+	return &vdc, nil
 }
