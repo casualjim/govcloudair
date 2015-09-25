@@ -380,7 +380,10 @@ class Property
   end
 
   def type
-    @node["type"]||@node["ref"].gsub(/[^:]+:/, "")
+    return @node["type"] if @node["type"]
+    return @node["ref"].gsub(/[^:]+:/, "") if @node["ref"]
+    puts @node.to_xml
+    exit 1
   end
 
   def name
@@ -471,32 +474,52 @@ end
 if $0 == __FILE__
   types = []
 
-  # parse the schemas
-  %w(base error service session vchs).each do |nm|
-    rdr = SchemaReader.new(SCHEMA_PATH, "vcloudair56", "#{nm}.xsd")
-    rdr.parse
-    #puts "collected #{rdr.size} types"
-    #puts rdr.types
-    types.concat rdr.types
-    #puts "reader has ServiceType: #{rdr.has?(:ServiceType)}"
-    #puts "included schemas: #{rdr.included_schemas.keys}"
-  end
+  ## parse the schemas
+  #%w(base error service session vchs).each do |nm|
+    #rdr = SchemaReader.new(SCHEMA_PATH, "vcloudair56", "#{nm}.xsd")
+    #rdr.parse
+    ##puts "collected #{rdr.size} types"
+    ##puts rdr.types
+    #types.concat rdr.types
+    ##puts "reader has ServiceType: #{rdr.has?(:ServiceType)}"
+    ##puts "included schemas: #{rdr.included_schemas.keys}"
+  #end
 
-  types.each do |tpe|
-    #puts "#{tpe.name} has #{(tpe.properties||[]).size} properties and #{(tpe.ancestors||[]).size} ancestors"
-    tpe.to_go
-  end
+  #types.each do |tpe|
+    ##puts "#{tpe.name} has #{(tpe.properties||[]).size} properties and #{(tpe.ancestors||[]).size} ancestors"
+    #tpe.to_go
+  #end
 
-  types.clear
+  ##types.clear
+
+  #{
+    #"common"=>%w(simpleTypes complexTypes resource Meta),
+    #"sc"=>%w(binding instance serviceplan),
+    #"user"=> %w(User),
+    #"" => %w(billableRates error metering)
+  #}.each do |k, v|
+    #v.each do |nm|
+      #rdr = k ? SchemaReader.new(SCHEMA_PATH, "vcloudair57", k, "#{nm}.xsd") : SchemaReader.new(SCHEMA_PATH, "vcloudair57", "#{nm}.xsd")
+      #rdr.parse
+      #types.concat rdr.types
+    #end
+  #end
+
+  #types.each do |tpe|
+    #tpe.to_go
+  #end
+
+  #types.clear
 
   {
-    "common"=>%w(simpleTypes complexTypes resource Meta),
-    "sc"=>%w(binding instance serviceplan),
-    "user"=> %w(User),
-    "" => %w(billableRates error metering)
+    #"admin" => %w(admin amqp blockingExtensions event providerVdc upload user vCloudEntities),
+    #"extension" => %w(notification services settings taskExtensionRequest vmwextensions),
+    #"master" => %w(master),
+    #"networkservice" => %w(diagnostics entity ipam network),
+    "vcloud" => %w(common catalog catalogItem disk entity file hybrid media metrics mksTicket organization organizationList productSectionList queryRecordView queryReferenceView resourceEntity screenTicket services session task tasksList vApp vAppTemplate vcloud vdc vdcStorageProfile vendorServices vms)
   }.each do |k, v|
     v.each do |nm|
-      rdr = k ? SchemaReader.new(SCHEMA_PATH, "vcloudair57", k, "#{nm}.xsd") : SchemaReader.new(SCHEMA_PATH, "vcloudair57", "#{nm}.xsd")
+      rdr = SchemaReader.new(SCHEMA_PATH, "vcloudair511/1.5/schemas", k, "#{nm}.xsd")
       rdr.parse
       types.concat rdr.types
     end
@@ -505,24 +528,4 @@ if $0 == __FILE__
   types.each do |tpe|
     tpe.to_go
   end
-
-  #types.clear
-
-  #{
-    #"admin" => %w(admin amqp blockingExtensions event providerVdc upload user vCloudEntities),
-    #"extension" => %w(notification services settings taskExtensionRequest vmwextensions),
-    #"master" => %w(master),
-    #"networkservice" => %w(diagnostics entity ipam network),
-    #"vcloud" => %w(common catalog catalogItem disk entity file hybrid media metrics mksTicket network organization organizationList productSectionList queryRecordView queryReferenceView resourceEntity screenTicket services session task tasksList vApp vAppTemplate vcloud vdc vdcStorageProfile vendorServices vms)
-  #}.each do |k, v|
-    #v.each do |nm|
-      #rdr = SchemaReader.new(SCHEMA_PATH, "vcloudair511/1.5/schemas", k, "#{nm}.xsd")
-      #rdr.parse
-      #types.concat rdr.types
-    #end
-  #end
-
-  ##types.each do |tpe|
-    ##tpe.to_go
-  ##end
 end

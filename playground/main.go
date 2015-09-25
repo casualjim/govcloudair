@@ -12,6 +12,8 @@ import (
 	"net/http/httputil"
 	"os"
 	"strings"
+
+	"github.com/vmware/govcloudair/schemas/vcloud"
 )
 
 var (
@@ -26,212 +28,6 @@ var (
 
 	// HeaderAccept the HTTP accept header key
 	HeaderAccept = "Accept"
-
-	// JSONMimeV57 the json mime for version 5.7 of the API
-	JSONMimeV57 = "application/json;version=5.7"
-	// AnyXMLMime511 the wildcard xml mime for version 5.11 of the API
-	AnyXMLMime511 = "application/*+xml;version=5.11"
-	// Version511 the 5.11 version
-	Version511 = "5.11"
-	// Version is the default version number
-	Version = Version511
-
-	// Public Catalog Name
-	PublicCatalog = "Public Catalog"
-
-	// Default Catalog Name
-	DefaultCatalog = "Default Catalog"
-)
-
-const (
-	MimeOrgList          = "application/vnd.vmware.vcloud.orgList+xml"
-	MimeOrg              = "application/vnd.vmware.vcloud.org+xml"
-	MimeCatalog          = "application/vnd.vmware.vcloud.catalog+xml"
-	MimeVDC              = "application/vnd.vmware.vcloud.vdc+xml"
-	MimeQueryRecords     = "application/vnd.vmware.vchs.query.records+xml"
-	MimeAPIExtensibility = "application/vnd.vmware.vcloud.apiextensibility+xml"
-	MimeEntity           = "application/vnd.vmware.vcloud.entity+xml"
-	MimeQueryList        = "application/vnd.vmware.vcloud.query.queryList+xml"
-	MimeSession          = "application/vnd.vmware.vcloud.session+xml"
-	MimeTask             = "application/vnd.vmware.vcloud.task+xml"
-	MimeError            = "application/vnd.vmware.vcloud.error+xml"
-)
-
-const (
-	RelDown          = "down"
-	RelAdd           = "add"
-	RelUp            = "up"
-	RelEdit          = "edit"
-	RelRemove        = "remove"
-	RelCopy          = "copy"
-	RelMove          = "move"
-	RelAlternate     = "alternate"
-	RelTaskCancel    = "task:cancel"
-	RelDeploy        = "deploy"
-	RelUndeploy      = "undeploy"
-	RelDiscardState  = "discardState"
-	RelPowerOn       = "power:powerOn"
-	RelPowerOff      = "power:powerOff"
-	RelPowerReset    = "power:reset"
-	RelPowerReboot   = "power:reboot"
-	RelPowerSuspend  = "power:suspend"
-	RelPowerShutdown = "power:shutdown"
-
-	RelScreenThumbnail        = "screen:thumbnail"
-	RelScreenAcquireTicket    = "screen:acquireTicket"
-	RelScreenAcquireMksTicket = "screen:acquireMksTicket"
-
-	RelMediaInsertMedia = "media:insertMedia"
-	RelMediaEjectMedia  = "media:ejectMedia"
-
-	RelDiskAttach = "disk:attach"
-	RelDiskDetach = "disk:detach"
-
-	RelUploadDefault   = "upload:default"
-	RelUploadAlternate = "upload:alternate"
-
-	RelDownloadDefault   = "download:default"
-	RelDownloadAlternate = "download:alternate"
-	RelDownloadIdentity  = "download:identity"
-
-	RelSnapshotCreate          = "snapshot:create"
-	RelSnapshotRevertToCurrent = "snapshot:revertToCurrent"
-	RelSnapshotRemoveAll       = "snapshot:removeAll"
-
-	RelOVF               = "ovf"
-	RelOVA               = "ova"
-	RelControlAccess     = "controlAccess"
-	RelPublish           = "publish"
-	RelPublishExternal   = "publishToExternalOrganizations"
-	RelSubscribeExternal = "subscribeToExternalCatalog"
-	RelExtension         = "extension"
-	RelEnable            = "enable"
-	RelDisable           = "disable"
-	RelMerge             = "merge"
-	RelCatalogItem       = "catalogItem"
-	RelRecompose         = "recompose"
-	RelRegister          = "register"
-	RelUnregister        = "unregister"
-	RelRepair            = "repair"
-	RelReconnect         = "reconnect"
-	RelDisconnect        = "disconnect"
-	RelUpgrade           = "upgrade"
-	RelAnswer            = "answer"
-	RelAddOrgs           = "addOrgs"
-	RelRemoveOrgs        = "removeOrgs"
-	RelSync              = "sync"
-
-	RelVSphereWebClientURL = "vSphereWebClientUrl"
-	RelVimServerDvSwitches = "vimServerDvSwitches"
-
-	RelCollaborationResume    = "resume"
-	RelCollaborationAbort     = "abort"
-	RelCollaborationFail      = "fail"
-	RelEnterMaintenanceMode   = "enterMaintenanceMode"
-	RelExitMaintenanceMode    = "exitMaintenanceMode"
-	RelTask                   = "task"
-	RelTaskOwner              = "task:owner"
-	RelPreviousPage           = "previousPage"
-	RelNextPage               = "nextPage"
-	RelFirstPage              = "firstPage"
-	RelLastPage               = "lastPage"
-	RelInstallVMWareTools     = "installVmwareTools"
-	RelConsolidate            = "consolidate"
-	RelEntity                 = "entity"
-	RelEntityResolver         = "entityResolver"
-	RelRelocate               = "relocate"
-	RelBlockingTasks          = "blockingTasks"
-	RelUpdateProgress         = "updateProgress"
-	RelSyncSyslogSettings     = "syncSyslogSettings"
-	RelTakeOwnership          = "takeOwnership"
-	RelUnlock                 = "unlock"
-	RelShadowVMs              = "shadowVms"
-	RelTest                   = "test"
-	RelUpdateResourcePools    = "update:resourcePools"
-	RelRemoveForce            = "remove:force"
-	RelStorageClass           = "storageProfile"
-	RelRefreshStorageClasses  = "refreshStorageProfile"
-	RelRefreshVirtualCenter   = "refreshVirtualCenter"
-	RelCheckCompliance        = "checkCompliance"
-	RelForceFullCustomization = "customizeAtNextPowerOn"
-	RelReloadFromVC           = "reloadFromVc"
-	RelMetricsDayView         = "interval:day"
-	RelMetricsWeekView        = "interval:week"
-	RelMetricsMonthView       = "interval:month"
-	RelMetricsYearView        = "interval:year"
-	RelMetricsPreviousRange   = "range:previous"
-	RelMetricsNextRange       = "range:next"
-	RelMetricsLatestRange     = "range:latest"
-	RelRights                 = "rights"
-	RelMigratVMs              = "migrateVms"
-	RelResourcePoolVMList     = "resourcePoolVmList"
-	RelCreateEvent            = "event:create"
-	RelCreateTask             = "task:create"
-	RelUploadBundle           = "bundle:upload"
-	RelCleanupBundles         = "bundles:cleanup"
-	RelAuthorizationCheck     = "authorization:check"
-	RelCleanupRights          = "rights:cleanup"
-
-	RelEdgeGatewayRedeploy           = "edgeGateway:redeploy"
-	RelEdgeGatewayReapplyServices    = "edgeGateway:reapplyServices"
-	RelEdgeGatewayConfigureServices  = "edgeGateway:configureServices"
-	RelEdgeGatewayConfigureSyslog    = "edgeGateway:configureSyslogServerSettings"
-	RelEdgeGatewaySyncSyslogSettings = "edgeGateway:syncSyslogSettings"
-	RelEdgeGatewayUpgrade            = "edgeGateway:upgrade"
-	RelEdgeGatewayUpgradeNetworking  = "edgeGateway:convertToAdvancedNetworking"
-	RelVDCManageFirewall             = "manageFirewall"
-
-	RelCertificateUpdate = "certificate:update"
-	RelCertificateReset  = "certificate:reset"
-	RelTruststoreUpdate  = "truststore:update"
-	RelTruststoreReset   = "truststore:reset"
-	RelKeyStoreUpdate    = "keystore:update"
-	RelKeystoreReset     = "keystore:reset"
-	RelKeytabUpdate      = "keytab:update"
-	RelKeytabReset       = "keytab:reset"
-
-	RelServiceLinks             = "down:serviceLinks"
-	RelAPIFilters               = "down:apiFilters"
-	RelResourceClasses          = "down:resourceClasses"
-	RelResourceClassActions     = "down:resourceClassActions"
-	RelServices                 = "down:services"
-	RelACLRules                 = "down:aclRules"
-	RelFileDescriptors          = "down:fileDescriptors"
-	RelAPIDefinitions           = "down:apiDefinitions"
-	RelServiceResources         = "down:serviceResources"
-	RelExtensibility            = "down:extensibility"
-	RelAPIServiceQuery          = "down:service"
-	RelAPIDefinitionsQuery      = "down:apidefinitions"
-	RelAPIFilesQuery            = "down:files"
-	RelServiceOfferings         = "down:serviceOfferings"
-	RelServiceOfferingInstances = "down:serviceOfferingInstances"
-	RelHybrid                   = "down:hybrid"
-
-	RelServiceRefresh      = "service:refresh"
-	RelServiceAssociate    = "service:associate"
-	RelServiceDisassociate = "service:disassociate"
-
-	RelReconfigureVM = "reconfigureVM"
-
-	RelOrgVDCGateways = "edgeGateways"
-	RelOrgVDCNetworks = "orgVdcNetworks"
-
-	RelHybridAcquireControlTicket = "hybrid:acquireControlTicket"
-	RelHybridAcquireTicket        = "hybrid:acquireTicket"
-	RelHybridRefreshTunnel        = "hybrid:refreshTunnel"
-
-	RelMetrics = "metrics"
-
-	RelFederationRegenerateCertificate = "federation:regenerateFederationCertificate"
-	RelTemplateInstantiate             = "instantiate"
-)
-
-const (
-	HTTPGet    = "GET"
-	HTTPPost   = "POST"
-	HTTPPut    = "PUT"
-	HTTPPatch  = "PATCH"
-	HTTPDelete = "DELETE"
 )
 
 var (
@@ -245,7 +41,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	if err := client.JSONRequest(HTTPGet, InstancesPath, &client.Info); err != nil {
+	if err := client.JSONRequest(vcloud.HTTPGet, InstancesPath, &client.Info); err != nil {
 		log.Fatalln(err)
 	}
 
@@ -267,17 +63,17 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	org, err := orgList.FirstOrg()
+	org, err := orgList.FirstOrg(ses)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	catalog, err := org.RetrievePublicCatalog()
+	catalog, err := org.RetrievePublicCatalog(ses)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	catalogItem, err := catalog.ItemForName("VMware Photon OS - Tech Preview 2")
+	catalogItem, err := catalog.ItemForName("VMware Photon OS - Tech Preview 2", ses)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -295,8 +91,8 @@ var (
 )
 
 func newAuthenticatedClient(user, password string) (*authenticatedClient, error) {
-	r, _ := http.NewRequest(HTTPPost, BaseURL+LoginPath, nil)
-	r.Header.Set(HeaderAccept, JSONMimeV57)
+	r, _ := http.NewRequest(vcloud.HTTPPost, BaseURL+LoginPath, nil)
+	r.Header.Set(HeaderAccept, vcloud.JSONMimeV57)
 	r.SetBasicAuth(user, password)
 
 	if DumpInOut {
@@ -339,7 +135,7 @@ type authenticatedClient struct {
 
 func (a *authenticatedClient) JSONRequest(method, path string, result interface{}) error {
 	r, _ := http.NewRequest(method, BaseURL+path, nil)
-	r.Header.Set(HeaderAccept, JSONMimeV57)
+	r.Header.Set(HeaderAccept, vcloud.JSONMimeV57)
 
 	if a.AuthToken != "" {
 		r.Header.Set("Authorization", "Bearer "+a.AuthToken)
@@ -405,8 +201,8 @@ type accountInstanceAttrs struct {
 }
 
 func (a *accountInstanceAttrs) Authenticate(username, password string) (*Session, error) {
-	r, _ := http.NewRequest(HTTPPost, a.SessionURI, nil)
-	r.Header.Set(HeaderAccept, AnyXMLMime511)
+	r, _ := http.NewRequest(vcloud.HTTPPost, a.SessionURI, nil)
+	r.Header.Set(HeaderAccept, vcloud.AnyXMLMime511)
 	r.SetBasicAuth(username+"@"+a.OrgName, password)
 
 	if DumpInOut {
@@ -440,9 +236,9 @@ func (a *accountInstanceAttrs) Authenticate(username, password string) (*Session
 
 type Session struct {
 	// ResourceType
-	HREF  string   `xml:"href,attr,omitempty"`
-	Type  string   `xml:"type,attr,omitempty"`
-	Links LinkList `xml:"Link,omitempty"`
+	HREF  string          `xml:"href,attr,omitempty"`
+	Type  string          `xml:"type,attr,omitempty"`
+	Links vcloud.LinkList `xml:"Link,omitempty"`
 
 	// SessionType
 	Org    string `xml:"org,attr,omitempty"`
@@ -453,17 +249,16 @@ type Session struct {
 	Token string `xml:"-"`
 }
 
-func (s *Session) OrgList() (*OrgList, error) {
-	lnk := s.Links.ForType(MimeOrgList, RelDown)
+func (s *Session) OrgList() (*vcloud.OrgList, error) {
+	lnk := s.Links.ForType(vcloud.MimeOrgList, vcloud.RelDown)
 	if lnk == nil {
 		return nil, errors.New("Couldn't find the link for orgList")
 	}
 
-	var orgList OrgList
-	if err := s.XMLRequest(HTTPGet, lnk.HREF, MimeOrgList, nil, &orgList); err != nil {
+	var orgList vcloud.OrgList
+	if err := s.XMLRequest(vcloud.HTTPGet, lnk.HREF, lnk.Type, nil, &orgList); err != nil {
 		return nil, err
 	}
-	orgList.session = s
 
 	return &orgList, nil
 }
@@ -480,7 +275,7 @@ func (s *Session) XMLRequest(method, url, tpe string, body, result interface{}) 
 		r, _ = http.NewRequest(method, url, buf)
 	}
 
-	r.Header.Set(HeaderAccept, tpe+";version="+Version)
+	r.Header.Set(HeaderAccept, tpe+";version="+vcloud.Version)
 	if body != nil {
 		r.Header.Set("Content-Type", "application/xml")
 	}
@@ -520,335 +315,4 @@ func (s *Session) XMLRequest(method, url, tpe string, body, result interface{}) 
 	}
 
 	return nil
-}
-
-type LinkList []*Link
-
-func (l LinkList) ForType(tpe, rel string) *Link {
-	if rel == "" {
-		rel = RelDown
-	}
-
-	for _, lnk := range l {
-		if lnk != nil && lnk.Type == tpe && lnk.Rel == rel {
-			return lnk
-		}
-	}
-	return nil
-}
-
-func (l LinkList) ForName(name, tpe, rel string) *Link {
-	if rel == "" {
-		rel = RelDown
-	}
-
-	for _, lnk := range l {
-		if lnk != nil && lnk.Name == name && lnk.Type == tpe && lnk.Rel == rel {
-			return lnk
-		}
-	}
-
-	return nil
-}
-
-// Link extends reference type by adding relation attribute. Defines a hyper-link with a relationship, hyper-link reference, and an optional MIME type.
-// Type: LinkType
-// Namespace: http://www.vmware.com/vcloud/v1.5
-// Description: Extends reference type by adding relation attribute. Defines a hyper-link with a relationship, hyper-link reference, and an optional MIME type.
-// Since: 0.9
-type Link struct {
-	HREF string `xml:"href,attr"`
-	ID   string `xml:"id,attr,omitempty"`
-	Type string `xml:"type,attr,omitempty"`
-	Name string `xml:"name,attr,omitempty"`
-	Rel  string `xml:"rel,attr"`
-}
-
-type OrgList struct {
-	HREF string `xml:"href,attr,omitempty"`
-	Type string `xml:"type,attr,omitempty"`
-
-	// ResourceType
-	Links LinkList `xml:"Link,omitempty"`
-
-	// OrgListType
-	Orgs []Reference `xml:"Org,omitempty"`
-
-	session *Session `xml:"-" json:"-"`
-}
-
-func (o *OrgList) FirstOrg() (*Org, error) {
-	if len(o.Orgs) == 0 {
-		return nil, errors.New("orgList has no orgs, can't get the first")
-	}
-
-	var org Org
-	if err := o.session.XMLRequest(HTTPGet, o.Orgs[0].HREF, o.Orgs[0].Type, nil, &org); err != nil {
-		return nil, err
-	}
-
-	org.session = o.session
-	return &org, nil
-}
-
-// Reference is a reference to a resource. Contains an href attribute and optional name and type attributes.
-// Type: ReferenceType
-// Namespace: http://www.vmware.com/vcloud/v1.5
-// Description: A reference to a resource. Contains an href attribute and optional name and type attributes.
-// Since: 0.9
-type Reference struct {
-	HREF string `xml:"href,attr"`
-	ID   string `xml:"id,attr,omitempty"`
-	Type string `xml:"type,attr,omitempty"`
-	Name string `xml:"name,attr,omitempty"`
-}
-
-// Org represents the user view of a vCloud Director organization.
-// Type: OrgType
-// Namespace: http://www.vmware.com/vcloud/v1.5
-// Description: Represents the user view of a vCloud Director organization.
-// Since: 0.9
-type Org struct {
-	HREF         string `xml:"href,attr,omitempty"`
-	Type         string `xml:"type,attr,omitempty"`
-	ID           string `xml:"id,attr,omitempty"`
-	OperationKey string `xml:"operationKey,attr,omitempty"`
-	Name         string `xml:"name,attr"`
-
-	// resourcetype
-	Links LinkList `xml:"Link,omitempty"`
-
-	// entitytype
-	Description string `xml:"Description,omitempty"`
-	Tasks       []Task `xml:"Tasks>Task,omitempty"`
-
-	// orgtype
-	FullName  string `xml:"FullName"`
-	IsEnabled bool   `xml:"IsEnabled,omitempty"`
-
-	session *Session
-}
-
-func (o *Org) RetrievePublicCatalog() (*Catalog, error) {
-	return o.RetrieveCatalog(PublicCatalog)
-}
-
-func (o *Org) RetrieveDefaultCatalog() (*Catalog, error) {
-	return o.RetrieveCatalog(DefaultCatalog)
-}
-
-func (o *Org) RetrieveCatalog(name string) (*Catalog, error) {
-	lnk := o.Links.ForName(name, MimeCatalog, RelDown)
-	if lnk == nil {
-		return nil, fmt.Errorf("no catalog link found for %q", o.ID)
-	}
-
-	var catalog Catalog
-	if err := o.session.XMLRequest(HTTPGet, lnk.HREF, lnk.Type, nil, &catalog); err != nil {
-		return nil, err
-	}
-
-	catalog.session = o.session
-	return &catalog, nil
-}
-
-type Task struct {
-	// ResourceType
-	HREF string `xml:"href,attr,omitempty"`
-	Type string `xml:"type,attr,omitempty"`
-
-	// IdentifiableResourceType
-	ID           string `xml:"id,attr,omitempty"`
-	OperationKey string `xml:"operationKey,attr,omitempty"`
-
-	// EntityType
-	Name string `xml:"name,attr"`
-
-	// TaskType
-	CancelRequested  bool   `xml:"cancelRequested,attr,omitempty"`
-	EndTime          string `xml:"endTime,attr,omitempty"`
-	ExpiryTime       string `xml:"expiryTime,attr,omitempty"`
-	Operation        string `xml:"operation,attr,omitempty"`
-	OperationName    string `xml:"operationName,attr,omitempty"`
-	ServiceNamespace string `xml:"serviceNamespace,attr,omitempty"`
-	StartTime        string `xml:"startTime,attr,omitempty"`
-	Status           string `xml:"status,attr,omitempty"`
-
-	// ResourceType
-	Links LinkList `xml:"Link,omitempty"`
-
-	// EntityType
-	Description string `xml:"Description,omitempty"`
-	Tasks       []Task `xml:"Tasks>Task,omitempty"`
-
-	// TaskType
-	Owner        *Reference  `xml:Owner,omitempty`
-	Error        *Error      `xml:Error,omitempty`
-	User         *Reference  `xml:User,omitempty`
-	Organization *Reference  `xml:Organization,omitempty`
-	Progress     int         `xml:Progress,omitempty`
-	Params       interface{} `xml:Params,omitempty`
-	Details      string      `xml:Details,omitempty`
-}
-
-// Owner represents the owner of this entity.
-// Type: OwnerType
-// Namespace: http://www.vmware.com/vcloud/v1.5
-// Description: Represents the owner of this entity.
-// Since: 1.5
-type Owner struct {
-	// ResourceType
-	HREF string `xml:"href,attr,omitempty"`
-	Type string `xml:"type,attr,omitempty"`
-
-	// ResourceType
-	Links LinkList `xml:"Link,omitempty"`
-
-	// OwnerType
-	User *Reference `xml:"User"`
-}
-
-// Error is the standard error message type used in the vCloud REST API.
-// Type: ErrorType
-// Namespace: http://www.vmware.com/vcloud/v1.5
-// Description: The standard error message type used in the vCloud REST API.
-// Since: 0.9
-type Error struct {
-	MajorErrorCode          int    `xml:"majorErrorCode,attr"`
-	Message                 string `xml:"message,attr"`
-	MinorErrorCode          string `xml:"minorErrorCode,attr"`
-	VendorSpecificErrorCode string `xml:"vendorSpecificErrorCode,attr,omitempty"`
-	StackTrace              string `xml:"stackTrace,attr,omitempty"`
-
-	TenantError *TenantError `xml:"TentantError,omitempty"`
-}
-
-// TenantError is the standard error message type used in the vCloud REST API.
-// Type: ErrorType
-// Namespace: http://www.vmware.com/vcloud/v1.5
-// Description: The standard error message type used in the vCloud REST API.
-// Since: 0.9
-type TenantError struct {
-	MajorErrorCode          int    `xml:"majorErrorCode,attr"`
-	Message                 string `xml:"message,attr"`
-	MinorErrorCode          string `xml:"minorErrorCode,attr"`
-	VendorSpecificErrorCode string `xml:"vendorSpecificErrorCode,attr,omitempty"`
-	StackTrace              string `xml:"stackTrace,attr,omitempty"`
-}
-
-// Catalog represents the user view of a Catalog object.
-// Type: CatalogType
-// Namespace: http://www.vmware.com/vcloud/v1.5
-// Description: Represents the user view of a Catalog object.
-// Since: 0.9
-type Catalog struct {
-	// ResourceType
-	HREF string `xml:"href,attr,omitempty"`
-	Type string `xml:"type,attr,omitempty"`
-
-	// IdentifiableResourceType
-	ID           string `xml:"id,attr,omitempty"`
-	OperationKey string `xml:"operationKey,attr,omitempty"`
-
-	// EntityType
-	Name string `xml:"name,attr"`
-
-	// ResourceType
-	Links LinkList `xml:"Link,omitempty"`
-
-	// EntityType
-	Description string `xml:"Description,omitempty"`
-	Tasks       []Task `xml:"Tasks>Task,omitempty"`
-
-	// CatalogType
-	Owner         *Owner      `xml:"Owner,omitempty"`
-	CatalogItems  []Reference `xml:"CatalogItems>CatalogItem"`
-	IsPublished   bool        `xml:"IsPublished"`
-	DateCreated   string      `xml:"DateCreated"`
-	VersionNumber int64       `xml:"VersionNumber"`
-
-	session *Session `xml:"-" json:"-"`
-}
-
-func (c *Catalog) ItemForName(name string) (*CatalogItem, error) {
-	for _, p := range c.CatalogItems {
-		if p.Name == name {
-			var ci CatalogItem
-			if err := c.session.XMLRequest(HTTPGet, p.HREF, p.Type, nil, &ci); err != nil {
-				return nil, err
-			}
-
-			ci.session = c.session
-			return &ci, nil
-		}
-	}
-
-	return nil, fmt.Errorf("no item found in catalog for %q", name)
-}
-
-// CatalogItem contains a reference to a VappTemplate or Media object and related metadata.
-// Type: CatalogItemType
-// Namespace: http://www.vmware.com/vcloud/v1.5
-// Description: Contains a reference to a VappTemplate or Media object and related metadata.
-// Since: 0.9
-type CatalogItem struct {
-	// ResourceType
-	HREF string `xml:"href,attr,omitempty"`
-	Type string `xml:"type,attr,omitempty"`
-
-	// IdentifiableResourceType
-	ID           string `xml:"id,attr,omitempty"`
-	OperationKey string `xml:"operationKey,attr,omitempty"`
-
-	// EntityType
-	Name string `xml:"name,attr"`
-
-	// CatalogItemType
-	Size int64 `xml:"size,attr,omitempty"`
-
-	// ResourceType
-	Links LinkList `xml:"Link,omitempty"`
-
-	// EntityType
-	Description string `xml:"Description,omitempty"`
-	Tasks       []Task `xml:"Tasks>Task,omitempty"`
-
-	// CatalogItemType
-	Entity        *Entity    `xml:"Entity"`
-	Properties    []Property `xml:"Property,omitempty"`
-	DateCreated   string     `xml:"DateCreated,omitempty"`
-	VersionNumber int64      `xml:"VersionNumber,omitempty"`
-
-	session *Session `xml:"-" json:"-"`
-}
-
-// Property
-type Property struct {
-	Key   string `xml:"key,attr"`
-	Value string `xml:",innerxml"`
-}
-
-// Entity is a basic entity type in the vCloud object model. Includes a name, an optional description, and an optional list of links.
-// Type: EntityType
-// Namespace: http://www.vmware.com/vcloud/v1.5
-// Description: Basic entity type in the vCloud object model. Includes a name, an optional description, and an optional list of links.
-// Since: 0.9
-type Entity struct {
-	// ResourceType
-	HREF string `xml:"href,attr,omitempty"`
-	Type string `xml:"type,attr,omitempty"`
-
-	// IdentifiableResourceType
-	ID           string `xml:"id,attr,omitempty"`
-	OperationKey string `xml:"operationKey,attr,omitempty"`
-
-	// EntityType
-	Name string `xml:"name,attr"`
-
-	// ResourceType
-	Links LinkList `xml:"Link,omitempty"`
-
-	// EntityType
-	Description string `xml:"Description,omitempty"`
-	Tasks       []Task `xml:"Tasks>Task,omitempty"`
 }
