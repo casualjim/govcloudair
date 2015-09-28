@@ -73,17 +73,22 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	_, err = catalog.ItemForName("VMware Photon OS - Tech Preview 2", ses)
+	catalogItem, err := catalog.ItemForName("VMware Photon OS - Tech Preview 2", ses)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	vdc, err := org.FindVDC("VDC1", ses)
-	if err != nil {
-		log.Fatalln(err)
-	}
+	//_, err = org.FindVDC("VDC1", ses)
+	//if err != nil {
+	//log.Fatalln(err)
+	//}
 
-	b, err := json.MarshalIndent(vdc, "", "  ")
+	//vAppTemplate, err := catalogItem.VAppTemplate(ses)
+	//if err != nil {
+	//log.Fatalln(err)
+	//}
+
+	b, err := json.MarshalIndent(catalogItem, "", "  ")
 	if err != nil {
 		log.Fatalln(err)
 	}
