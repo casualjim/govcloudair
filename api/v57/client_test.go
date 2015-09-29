@@ -5,6 +5,7 @@ import (
 	"mime"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -22,29 +23,45 @@ func TestGetOAuthToken(t *testing.T) {
 			return
 		}
 
-		if mt != "application/json" {
-			rw.WriteHeader(406)
-			return
-		}
+		if r.URL.Path == LoginPath || r.URL.Path == InstancesPath {
+			if mt != "application/json" {
+				rw.WriteHeader(406)
+				return
+			}
 
-		if params["version"] != "5.7" {
-			rw.WriteHeader(412)
-			return
-		}
+			if params["version"] != "5.7" {
+				rw.WriteHeader(412)
+				return
+			}
 
-		if r.URL.Path == LoginPath {
-			rw.Header().Set("vchs-authorization", authToken)
-			rw.Header().Set("Content-Type", ct)
+			if r.URL.Path == LoginPath {
+				un, pw, ok := r.BasicAuth()
+				if !ok || un != "some user" || pw != "some password" {
+					rw.WriteHeader(401)
+					return
+				}
+				rw.Header().Set("vchs-authorization", authToken)
+				rw.Header().Set("Content-Type", ct)
+				rw.WriteHeader(200)
+				rw.Write([]byte(`{"serviceGroupIds":["service-group-uuid-goes-here"]}`))
+				return
+			}
+
+			if r.URL.Path == InstancesPath {
+				rw.Header().Set("Content-Type", ct+"; class=com.vmware.vchs.sc.restapi.model.instancelisttype")
+				rw.WriteHeader(200)
+				rw.Write([]byte(strings.Replace(instancesJSON, "https://us-california-1-3.vchs.vmware.com", "http://"+r.Host, -1)))
+				return
+			}
+		} else { // this should be XML and so forth
+			un, pw, ok := r.BasicAuth()
+			if !ok || un != "some user@org-name-uuid-goes-here" || pw != "some password" {
+				rw.WriteHeader(401)
+				return
+			}
+			rw.Header().Set("Content-Type", "application/vnd.vmware.vcloud.session+xml;version=5.11")
 			rw.WriteHeader(200)
-			rw.Write([]byte(`{"serviceGroupIds":["service-group-uuid-goes-here"]}`))
-			return
-		}
-
-		if r.URL.Path == InstancesPath {
-			rw.Header().Set("Content-Type", ct+"; class=com.vmware.vchs.sc.restapi.model.instancelisttype")
-			rw.WriteHeader(200)
-			rw.Write([]byte(instancesJSON))
-			return
+			rw.Write([]byte(strings.Replace(sessionsXML, "https://us-california-1-3.vchs.vmware.com", "http://"+r.Host, -1)))
 		}
 
 		rw.WriteHeader(404)
@@ -91,3 +108,17 @@ var instancesJSON = `{
         }
     ]
 }`
+
+var sessionsXML = `<?xml version="1.0" encoding="UTF-8"?>
+<Session xmlns="http://www.vmware.com/vcloud/v1.5" org="org-name-uuid-goes-here" roles="Account Administrator" user="someone@somewhere.com" userId="urn:vcloud:user:user-uuid-goes-here" href="https://us-california-1-3.vchs.vmware.com/api/compute/api/session" type="application/vnd.vmware.vcloud.session+xml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.vmware.com/vcloud/v1.5 http://us-california-1-3.vchs.vmware.com/api/compute/api/v1.5/schema/master.xsd">
+    <Link rel="down" href="https://us-california-1-3.vchs.vmware.com/api/compute/api/org/" type="application/vnd.vmware.vcloud.orgList+xml"/>
+    <Link rel="remove" href="https://us-california-1-3.vchs.vmware.com/api/compute/api/session"/>
+    <Link rel="down" href="https://us-california-1-3.vchs.vmware.com/api/compute/api/admin/" type="application/vnd.vmware.admin.vcloud+xml"/>
+    <Link rel="down" href="https://us-california-1-3.vchs.vmware.com/api/compute/api/org/org-uuid-goes-here" name="org-name-uuid-goes-here" type="application/vnd.vmware.vcloud.org+xml"/>
+    <Link rel="down" href="https://us-california-1-3.vchs.vmware.com/api/compute/api/query" type="application/vnd.vmware.vcloud.query.queryList+xml"/>
+    <Link rel="entityResolver" href="https://us-california-1-3.vchs.vmware.com/api/compute/api/entity/" type="application/vnd.vmware.vcloud.entity+xml"/>
+    <Link rel="down:extensibility" href="https://us-california-1-3.vchs.vmware.com/api/compute/api/extensibility" type="application/vnd.vmware.vcloud.apiextensibility+xml"/>
+    <Link rel="down" href="https://us-california-1-3.vchs.vmware.com/api/compute/api/vchs/query?type=edgeGateway" type="application/vnd.vmware.vchs.query.records+xml"/>
+    <Link rel="down" href="https://us-california-1-3.vchs.vmware.com/api/compute/api/vchs/query?type=orgVdcNetwork" type="application/vnd.vmware.vchs.query.records+xml"/>
+</Session>
+`

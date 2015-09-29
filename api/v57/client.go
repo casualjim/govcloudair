@@ -44,7 +44,7 @@ type Config struct {
 }
 
 // NewAuthenticatedSession create a new vCloud Air authenticated client
-func NewAuthenticatedSession(config Config) (interface{}, error) {
+func NewAuthenticatedSession(config Config) (*Session, error) {
 	if config.HTTP == nil {
 		config.HTTP = http.DefaultClient
 	}
@@ -80,7 +80,25 @@ func NewAuthenticatedSession(config Config) (interface{}, error) {
 	result.AuthToken = resp.Header.Get("vchs-authorization")
 	result.Config = &config
 
-	return result.instances()
+	instances, err := result.instances()
+	if err != nil {
+		return nil, err
+	}
+
+	var attrs *accountInstanceAttrs
+	for _, inst := range instances {
+		attrs = inst.Attrs()
+		if attrs != nil {
+			break
+		}
+	}
+
+	if attrs == nil {
+		return nil, fmt.Errorf("unable to determine session url")
+	}
+
+	attrs.config = &config
+	return attrs.Authenticate()
 }
 
 type oAuthClient struct {
@@ -161,16 +179,16 @@ func (a *accountInstance) Attrs() *accountInstanceAttrs {
 }
 
 type accountInstanceAttrs struct {
-	OrgName       string `json:"orgName"`
-	SessionURI    string `json:"sessionUri"`
-	APIVersionURI string `json:"apiVersionUri"`
-	config        Config `json:"-"`
+	OrgName       string  `json:"orgName"`
+	SessionURI    string  `json:"sessionUri"`
+	APIVersionURI string  `json:"apiVersionUri"`
+	config        *Config `json:"-"`
 }
 
-func (a *accountInstanceAttrs) Authenticate(username, password string) (*Session, error) {
+func (a *accountInstanceAttrs) Authenticate() (*Session, error) {
 	r, _ := http.NewRequest(vcloud.HTTPPost, a.SessionURI, nil)
 	r.Header.Set(HeaderAccept, vcloud.AnyXMLMime511)
-	r.SetBasicAuth(username+"@"+a.OrgName, password)
+	r.SetBasicAuth(a.config.Username+"@"+a.OrgName, a.config.Password)
 
 	if a.config.Debug {
 		dr, _ := httputil.DumpRequestOut(r, false)
@@ -213,8 +231,8 @@ type Session struct {
 	User   string `xml:"user,attr,omitempty"`
 	UserID string `xml:"userId,attr,omitempty"`
 
-	Token   string `xml:"-" json:"-"`
-	context Config `xml:"-" json:"-"`
+	Token   string  `xml:"-" json:"-"`
+	context *Config `xml:"-" json:"-"`
 }
 
 func (s *Session) OrgList() (*vcloud.OrgList, error) {
