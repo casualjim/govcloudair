@@ -1,6 +1,10 @@
 package vcloud
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/vmware/govcloudair/api"
+)
 
 // Catalog represents the user view of a Catalog object.
 // Type: CatalogType
@@ -34,7 +38,7 @@ type Catalog struct {
 	VersionNumber int64       `xml:"VersionNumber"`
 }
 
-func (c *Catalog) ItemForName(name string, client XMLClient) (*CatalogItem, error) {
+func (c *Catalog) ItemForName(name string, client api.XMLClient) (*CatalogItem, error) {
 	for _, p := range c.CatalogItems {
 		if p.Name == name {
 			var ci CatalogItem

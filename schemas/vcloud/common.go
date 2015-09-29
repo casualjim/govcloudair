@@ -1,10 +1,5 @@
 package vcloud
 
-// XMLClient a client capable of making XML requests to a vcloud API
-type XMLClient interface {
-	XMLRequest(string, string, string, interface{}, interface{}) error
-}
-
 // Reference is a reference to a resource. Contains an href attribute and optional name and type attributes.
 // Type: ReferenceType
 // Namespace: http://www.vmware.com/vcloud/v1.5

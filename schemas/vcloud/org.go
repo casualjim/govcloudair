@@ -3,7 +3,24 @@ package vcloud
 import (
 	"errors"
 	"fmt"
+
+	"github.com/vmware/govcloudair/api"
 )
+
+// FetchOrgList fetches the org list from a set of links that hopefully contain a link to an org list
+func FetchOrgList(links LinkList, client api.XMLClient) (*OrgList, error) {
+	lnk := links.ForType(MimeOrgList, RelDown)
+	if lnk == nil {
+		return nil, errors.New("no link for orgList")
+	}
+
+	var orgList OrgList
+	if err := client.XMLRequest(HTTPGet, lnk.HREF, lnk.Type, nil, &orgList); err != nil {
+		return nil, err
+	}
+
+	return &orgList, nil
+}
 
 // OrgList represents a list of organizations.
 // Type: OrgListType
@@ -21,13 +38,14 @@ type OrgList struct {
 }
 
 // FirstOrg retrieves the first organization from the org list
-func (o *OrgList) FirstOrg(client XMLClient) (*Org, error) {
+func (o *OrgList) FirstOrg(client api.XMLClient) (*Org, error) {
 	if len(o.Orgs) == 0 {
 		return nil, errors.New("orgList has no orgs, can't get the first")
 	}
 
+	ref := o.Orgs[0]
 	var org Org
-	if err := client.XMLRequest(HTTPGet, o.Orgs[0].HREF, o.Orgs[0].Type, nil, &org); err != nil {
+	if err := client.XMLRequest(HTTPGet, ref.HREF, ref.Type, nil, &org); err != nil {
 		return nil, err
 	}
 
@@ -59,17 +77,17 @@ type Org struct {
 }
 
 // RetrievePublicCatalog convenience function to retrieve the public catalog
-func (o *Org) RetrievePublicCatalog(client XMLClient) (*Catalog, error) {
+func (o *Org) RetrievePublicCatalog(client api.XMLClient) (*Catalog, error) {
 	return o.RetrieveCatalog(PublicCatalog, client)
 }
 
 // RetrieveDefaultCatalog convenience function to retrieve the default catalog
-func (o *Org) RetrieveDefaultCatalog(client XMLClient) (*Catalog, error) {
+func (o *Org) RetrieveDefaultCatalog(client api.XMLClient) (*Catalog, error) {
 	return o.RetrieveCatalog(DefaultCatalog, client)
 }
 
 // RetrieveCatalog retrieve a named catalog
-func (o *Org) RetrieveCatalog(name string, client XMLClient) (*Catalog, error) {
+func (o *Org) RetrieveCatalog(name string, client api.XMLClient) (*Catalog, error) {
 	lnk := o.Links.ForName(name, MimeCatalog, RelDown)
 	if lnk == nil {
 		return nil, fmt.Errorf("no catalog link found for %q", o.ID)
@@ -83,7 +101,7 @@ func (o *Org) RetrieveCatalog(name string, client XMLClient) (*Catalog, error) {
 }
 
 // FindVDC finds the named VDC for this org
-func (o *Org) FindVDC(name string, client XMLClient) (*VDC, error) {
+func (o *Org) FindVDC(name string, client api.XMLClient) (*VDC, error) {
 	lnk := o.Links.ForName(name, MimeVDC, RelDown)
 	if lnk == nil {
 		return nil, fmt.Errorf("no VDC link found for %q", o.ID)
