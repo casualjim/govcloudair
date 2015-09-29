@@ -60,6 +60,7 @@ func TestGetOAuthToken(t *testing.T) {
 				return
 			}
 			rw.Header().Set("Content-Type", "application/vnd.vmware.vcloud.session+xml;version=5.11")
+			rw.Header().Set("X-Vcloud-Authorization", "super-secret-cloud-auth-token")
 			rw.WriteHeader(200)
 			rw.Write([]byte(strings.Replace(sessionsXML, "https://us-california-1-3.vchs.vmware.com", "http://"+r.Host, -1)))
 		}
@@ -69,13 +70,14 @@ func TestGetOAuthToken(t *testing.T) {
 	}))
 	defer tc.Close()
 
-	_, err := NewAuthenticatedSession(Config{
+	sess, err := NewAuthenticatedSession(Config{
 		BaseURL:  tc.URL,
 		Debug:    true,
 		Username: "some user",
 		Password: "some password",
 	})
 	assert.NoError(t, err)
+	assert.Equal(t, sess.Token, "super-secret-cloud-auth-token")
 }
 
 var instancesJSON = `{
