@@ -1,4 +1,4 @@
-package main
+package v57
 
 import (
 	"bytes"
@@ -6,117 +6,65 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httputil"
-	"os"
 	"strings"
 
 	"github.com/vmware/govcloudair/schemas/vcloud"
 )
 
-var (
-	// DumpInOut dumps the input and output of HTTP calls to the console
-	DumpInOut = true
+const (
 	// BaseURL for vCloud Air
 	BaseURL = "https://vca.vmware.com/api"
 	// LoginPath for vCloud Air
 	LoginPath = "/iam/login"
 	// InstancesPath for vCloud Air
 	InstancesPath = "/sc/instances"
-
 	// HeaderAccept the HTTP accept header key
 	HeaderAccept = "Accept"
 )
 
-var (
-	vcaUsername = os.Getenv("VCLOUDAIR_USERNAME")
-	vcaPassword = os.Getenv("VCLOUDAIR_PASSWORD")
-)
+// Config is the client config for the vCloud Air API
+type Config struct {
+	// Override the default http client
+	HTTP *http.Client
+	// Username the username to use when authenticating
+	Username string
+	// Password the username to use when authenticating
+	Password string
+	// Debug, when true this will dump requests and responses with ALL parameters to the std logger.
+	// All parameters also includes things like passwords etc, so be careful when you turn this on for live systems
+	// because it's a security hole.
+	Debug bool
 
-func main() {
-	client, err := newAuthenticatedClient(vcaUsername, vcaPassword)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	if err := client.JSONRequest(vcloud.HTTPGet, InstancesPath, &client.Info); err != nil {
-		log.Fatalln(err)
-	}
-
-	var attrs *accountInstanceAttrs
-	for _, inst := range client.Info.Instances {
-		attrs = inst.Attrs()
-		if attrs != nil {
-			break
-		}
-	}
-
-	ses, err := attrs.Authenticate(vcaUsername, vcaPassword)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	orgList, err := ses.OrgList()
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	org, err := orgList.FirstOrg(ses)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	catalog, err := org.RetrievePublicCatalog(ses)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	catalogItem, err := catalog.ItemForName("VMware Photon OS - Tech Preview 2", ses)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	//_, err = org.FindVDC("VDC1", ses)
-	//if err != nil {
-	//log.Fatalln(err)
-	//}
-
-	//vAppTemplate, err := catalogItem.VAppTemplate(ses)
-	//if err != nil {
-	//log.Fatalln(err)
-	//}
-
-	b, err := json.MarshalIndent(catalogItem, "", "  ")
-	if err != nil {
-		log.Fatalln(err)
-	}
-	fmt.Println(string(b))
-
+	// BaseURL is the base url to use when talking to vCloud Air api's. Normal usage would not need to customize this URL.
+	// This should be hugely useful in unit tests and stuff.
+	BaseURL string
 }
 
-var (
-	apiLoginResponse = `{"serviceGroupIds":["e7434542-25c7-4120-88ec-6038a5770828"]}`
-)
-
-func newAuthenticatedClient(user, password string) (*authenticatedClient, error) {
-	r, _ := http.NewRequest(vcloud.HTTPPost, BaseURL+LoginPath, nil)
-	r.Header.Set(HeaderAccept, vcloud.JSONMimeV57)
-	r.SetBasicAuth(user, password)
-
-	if DumpInOut {
-		dr, _ := httputil.DumpRequestOut(r, true)
-		fmt.Println(string(dr))
+// NewAuthenticatedSession create a new vCloud Air authenticated client
+func NewAuthenticatedSession(config Config) (interface{}, error) {
+	if config.HTTP == nil {
+		config.HTTP = http.DefaultClient
 	}
 
-	resp, err := http.DefaultClient.Do(r)
+	r, _ := http.NewRequest(vcloud.HTTPPost, config.BaseURL+LoginPath, nil)
+	r.Header.Set("Accept", vcloud.JSONMimeV57)
+	r.SetBasicAuth(config.Username, config.Password)
+
+	if config.Debug {
+		dr, _ := httputil.DumpRequestOut(r, true)
+		log.Println(string(dr))
+	}
+
+	resp, err := config.HTTP.Do(r)
 	if err != nil {
 		return nil, err
 	}
-	if DumpInOut {
+	if config.Debug {
 		dr, _ := httputil.DumpResponse(resp, true)
-		fmt.Println(string(dr))
+		log.Println(string(dr))
 	}
 	defer resp.Body.Close()
 
@@ -124,51 +72,58 @@ func newAuthenticatedClient(user, password string) (*authenticatedClient, error)
 		return nil, fmt.Errorf("Could not complete request with vca, because (status %d) %s\n", resp.StatusCode, resp.Status)
 	}
 
-	var result authenticatedClient
+	var result oAuthClient
 	dec := json.NewDecoder(resp.Body)
 	if err := dec.Decode(&result); err != nil {
 		return nil, err
 	}
 	result.AuthToken = resp.Header.Get("vchs-authorization")
+	result.Config = &config
 
-	return &result, nil
+	return result.instances()
 }
 
-type authenticatedClient struct {
+type oAuthClient struct {
 	AuthToken       string   `json:"-"`
+	Config          *Config  `json:"-"`
 	ServiceGroupIDs []string `json:"serviceGroupIds"`
 	Info            struct {
 		Instances []accountInstance `json:"instances"`
 	}
-	http *http.Client
 }
 
-func (a *authenticatedClient) JSONRequest(method, path string, result interface{}) error {
-	r, _ := http.NewRequest(method, BaseURL+path, nil)
+func (a *oAuthClient) instances() ([]accountInstance, error) {
+	if err := a.JSONRequest(vcloud.HTTPGet, InstancesPath, &a.Info); err != nil {
+		return nil, err
+	}
+	return a.Info.Instances, nil
+}
+
+func (a *oAuthClient) JSONRequest(method, path string, result interface{}) error {
+	r, _ := http.NewRequest(method, a.Config.BaseURL+path, nil)
 	r.Header.Set(HeaderAccept, vcloud.JSONMimeV57)
 
 	if a.AuthToken != "" {
 		r.Header.Set("Authorization", "Bearer "+a.AuthToken)
 	}
 
-	if DumpInOut {
-		dr, _ := httputil.DumpRequestOut(r, true)
-		fmt.Println(string(dr))
+	if a.Config.Debug {
+		dr, _ := httputil.DumpRequestOut(r, false)
+		log.Println(string(dr))
 	}
 
-	resp, err := http.DefaultClient.Do(r)
+	resp, err := a.Config.HTTP.Do(r)
 	if err != nil {
 		return err
 	}
-
-	if DumpInOut {
+	if a.Config.Debug {
 		dr, _ := httputil.DumpResponse(resp, true)
-		fmt.Println(string(dr))
+		log.Println(string(dr))
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode/100 != 2 {
-		log.Fatalf("Could not complete request with vca, because (status %d) %s\n", resp.StatusCode, resp.Status)
+		return fmt.Errorf("Could not complete request with vca, because (status %d) %s\n", resp.StatusCode, resp.Status)
 	}
 
 	dec := json.NewDecoder(resp.Body)
@@ -209,6 +164,7 @@ type accountInstanceAttrs struct {
 	OrgName       string `json:"orgName"`
 	SessionURI    string `json:"sessionUri"`
 	APIVersionURI string `json:"apiVersionUri"`
+	config        Config `json:"-"`
 }
 
 func (a *accountInstanceAttrs) Authenticate(username, password string) (*Session, error) {
@@ -216,16 +172,16 @@ func (a *accountInstanceAttrs) Authenticate(username, password string) (*Session
 	r.Header.Set(HeaderAccept, vcloud.AnyXMLMime511)
 	r.SetBasicAuth(username+"@"+a.OrgName, password)
 
-	if DumpInOut {
-		dr, _ := httputil.DumpRequestOut(r, true)
-		fmt.Println(string(dr))
+	if a.config.Debug {
+		dr, _ := httputil.DumpRequestOut(r, false)
+		log.Println(string(dr))
 	}
 
-	resp, err := http.DefaultClient.Do(r)
+	resp, err := a.config.HTTP.Do(r)
 	if err != nil {
 		return nil, err
 	}
-	if DumpInOut {
+	if a.config.Debug {
 		dr, _ := httputil.DumpResponse(resp, true)
 		fmt.Println(string(dr))
 	}
@@ -257,7 +213,8 @@ type Session struct {
 	User   string `xml:"user,attr,omitempty"`
 	UserID string `xml:"userId,attr,omitempty"`
 
-	Token string `xml:"-" json:"-"`
+	Token   string `xml:"-" json:"-"`
+	context Config `xml:"-" json:"-"`
 }
 
 func (s *Session) OrgList() (*vcloud.OrgList, error) {
@@ -295,32 +252,26 @@ func (s *Session) XMLRequest(method, url, tpe string, body, result interface{}) 
 		r.Header.Set("X-Vcloud-Authorization", s.Token)
 	}
 
-	if DumpInOut {
-		dr, _ := httputil.DumpRequestOut(r, false)
+	if s.context.Debug {
+		dr, _ := httputil.DumpRequestOut(r, true)
 		fmt.Println(string(dr))
 	}
 
-	resp, err := http.DefaultClient.Do(r)
+	resp, err := s.context.HTTP.Do(r)
 	if err != nil {
 		return err
+	}
+	if s.context.Debug {
+		dr, _ := httputil.DumpResponse(resp, true)
+		fmt.Println(string(dr))
 	}
 	defer resp.Body.Close()
-	if DumpInOut {
-		dr, _ := httputil.DumpResponse(resp, false)
-		fmt.Println(string(dr))
-	}
-
-	b, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
-	fmt.Println(string(b))
 
 	if resp.StatusCode/100 != 2 {
 		log.Fatalf("Could not complete request with vca, because (status %d) %s\n", resp.StatusCode, resp.Status)
 	}
 
-	dec := xml.NewDecoder(bytes.NewReader(b))
+	dec := xml.NewDecoder(resp.Body)
 	if err := dec.Decode(result); err != nil {
 		return err
 	}
