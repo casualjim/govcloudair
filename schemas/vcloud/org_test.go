@@ -38,6 +38,7 @@ func TestFetchOrgList(t *testing.T) { // sanity check for serializing the org li
 	fixedSessionXML := strings.Replace(sessionsXML, "https://us-california-1-3.vchs.vmware.com", serv.URL, -1)
 	var tc testXMLClient
 	if err := xml.Unmarshal([]byte(fixedSessionXML), &tc); assert.NoError(t, err) {
+		tc.Config = testConfig
 		ol, err := FetchOrgList(tc.Links, &tc)
 		if assert.NoError(t, err) {
 			assert.Len(t, ol.Orgs, 1)
@@ -45,19 +46,27 @@ func TestFetchOrgList(t *testing.T) { // sanity check for serializing the org li
 	}
 }
 
-func TestFetchOrg(t *testing.T) {
-	//serv := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-	//rw.Header().Set("Content-Type", MimeOrg)
-	//rw.WriteHeader(200)
-	//rw.Write([]byte(orgXML))
-	//}))
-	//defer serv.Close()
+func TestFetchOrg(t *testing.T) { // sanity check for serializing the org
+	serv := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		rw.Header().Set("Content-Type", MimeOrg)
+		rw.WriteHeader(200)
+		rw.Write([]byte(orgXML))
+	}))
+	defer serv.Close()
 
-	//fixedOrgListXML := strings.Replace(orgListXML, "https://us-california-1-3.vchs.vmware.com", serv.URL, -1)
-	//var tc testXMLClient
-	//if err := xml.Unmarshal([]byte(fixedOrgListXML), &tc); assert.NoError(t, err) {
-	//o, err :=
-	//}
+	fixedSessionXML := strings.Replace(sessionsXML, "https://us-california-1-3.vchs.vmware.com", serv.URL, -1)
+	var tc testXMLClient
+	if err := xml.Unmarshal([]byte(fixedSessionXML), &tc); assert.NoError(t, err) {
+		tc.Config = testConfig
+		fixedOrgListXML := strings.Replace(orgListXML, "https://us-california-1-3.vchs.vmware.com", serv.URL, -1)
+		var orgList OrgList
+		if err := xml.Unmarshal([]byte(fixedOrgListXML), &orgList); assert.NoError(t, err) {
+			o, err := orgList.FirstOrg(&tc)
+			if assert.NoError(t, err) {
+				assert.Len(t, o.Links, 15)
+			}
+		}
+	}
 }
 
 var orgListXML = `<?xml version="1.0" encoding="UTF-8"?>
