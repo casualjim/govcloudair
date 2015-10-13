@@ -71,6 +71,16 @@ func TestFetchOrg(t *testing.T) { // sanity check for serializing the org
 	}
 }
 
+func loadTestOrg(url string) (api.XMLClient, *Org) {
+	tc := newTestXMLClient(url)
+	fixedOrgXML := strings.Replace(orgXML, "https://us-california-1-3.vchs.vmware.com", url, -1)
+	var org Org
+	if err := xml.Unmarshal([]byte(fixedOrgXML), &org); err != nil {
+		panic(err)
+	}
+	return tc, &org
+}
+
 var orgListXML = `<?xml version="1.0" encoding="UTF-8"?>
 <OrgList xmlns="http://www.vmware.com/vcloud/v1.5" href="https://us-california-1-3.vchs.vmware.com/api/compute/api/org/" type="application/vnd.vmware.vcloud.orgList+xml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.vmware.com/vcloud/v1.5 http://us-california-1-3.vchs.vmware.com/api/compute/api/v1.5/schema/master.xsd">
     <Org href="https://us-california-1-3.vchs.vmware.com/api/compute/api/org/org-uuid-goes-here" name="org-name-uuid-goes-here" type="application/vnd.vmware.vcloud.org+xml"/>

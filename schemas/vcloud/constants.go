@@ -35,9 +35,12 @@ const (
 	MimeAPIExtensibility = "application/vnd.vmware.vcloud.apiextensibility+xml"
 	MimeEntity           = "application/vnd.vmware.vcloud.entity+xml"
 	MimeQueryList        = "application/vnd.vmware.vcloud.query.queryList+xml"
-	MimeSession          = "application/vnd.vmware.vcloud.session+xml"
-	MimeTask             = "application/vnd.vmware.vcloud.task+xml"
-	MimeError            = "application/vnd.vmware.vcloud.error+xml"
+	// MimeSession mime for a session
+	MimeSession = "application/vnd.vmware.vcloud.session+xml"
+	MimeTask    = "application/vnd.vmware.vcloud.task+xml"
+	MimeError   = "application/vnd.vmware.vcloud.error+xml"
+	// MimeNetwork mime for a network
+	MimeNetwork = "application/vnd.vmware.vcloud.network+xml"
 )
 
 const (

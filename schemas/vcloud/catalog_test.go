@@ -1,10 +1,8 @@
 package vcloud
 
 import (
-	"encoding/xml"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -18,15 +16,12 @@ func TestFetchCatalog(t *testing.T) {
 	}))
 	defer serv.Close()
 
-	tc := newTestXMLClient(serv.URL)
-	fixedOrgXML := strings.Replace(orgXML, "https://us-california-1-3.vchs.vmware.com", serv.URL, -1)
-	var org Org
-	if err := xml.Unmarshal([]byte(fixedOrgXML), &org); assert.NoError(t, err) {
-		o, err := org.RetrieveCatalog(PublicCatalog, tc)
-		if assert.NoError(t, err) {
-			assert.Len(t, o.Links, 2)
-			assert.Len(t, o.CatalogItems, 10)
-		}
+	tc, org := loadTestOrg(serv.URL)
+	c, err := org.RetrieveCatalog(PublicCatalog, tc)
+
+	if assert.NoError(t, err) {
+		assert.Len(t, c.Links, 2)
+		assert.Len(t, c.CatalogItems, 10)
 	}
 }
 
