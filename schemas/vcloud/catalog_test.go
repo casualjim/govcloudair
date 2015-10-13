@@ -1,9 +1,37 @@
 package vcloud
 
-import "testing"
+import (
+	"encoding/xml"
+	"net/http"
+	"net/http/httptest"
+	"strings"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
 
 func TestFetchCatalog(t *testing.T) {
+	serv := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		rw.Header().Set("Content-Type", MimeCatalog)
+		rw.WriteHeader(200)
+		rw.Write([]byte(publicCatalogXML))
+	}))
+	defer serv.Close()
 
+	fixedSessionXML := strings.Replace(sessionsXML, "https://us-california-1-3.vchs.vmware.com", serv.URL, -1)
+	var tc testXMLClient
+	if err := xml.Unmarshal([]byte(fixedSessionXML), &tc); assert.NoError(t, err) {
+		tc.Config = testConfig
+		fixedOrgXML := strings.Replace(orgXML, "https://us-california-1-3.vchs.vmware.com", serv.URL, -1)
+		var org Org
+		if err := xml.Unmarshal([]byte(fixedOrgXML), &org); assert.NoError(t, err) {
+			o, err := org.RetrieveCatalog(PublicCatalog, &tc)
+			if assert.NoError(t, err) {
+				assert.Len(t, o.Links, 2)
+				assert.Len(t, o.CatalogItems, 10)
+			}
+		}
+	}
 }
 
 var publicCatalogXML = `<?xml version="1.0" encoding="UTF-8"?>
