@@ -11,6 +11,16 @@ import (
 	"github.com/vmware/govcloudair/api"
 )
 
+func newTestXMLClient(url string) *testXMLClient {
+	fixedSessionXML := strings.Replace(sessionsXML, "https://us-california-1-3.vchs.vmware.com", url, -1)
+	var tc testXMLClient
+	if err := xml.Unmarshal([]byte(fixedSessionXML), &tc); err != nil {
+		panic(err)
+	}
+	tc.Config = testConfig
+	return &tc
+}
+
 type testXMLClient struct {
 	XMLName xml.Name `xml:"http://www.vmware.com/vcloud/v1.5 Session"`
 	Links   []*Link  `xml:"Link"`
@@ -35,14 +45,10 @@ func TestFetchOrgList(t *testing.T) { // sanity check for serializing the org li
 	}))
 	defer serv.Close()
 
-	fixedSessionXML := strings.Replace(sessionsXML, "https://us-california-1-3.vchs.vmware.com", serv.URL, -1)
-	var tc testXMLClient
-	if err := xml.Unmarshal([]byte(fixedSessionXML), &tc); assert.NoError(t, err) {
-		tc.Config = testConfig
-		ol, err := FetchOrgList(tc.Links, &tc)
-		if assert.NoError(t, err) {
-			assert.Len(t, ol.Orgs, 1)
-		}
+	tc := newTestXMLClient(serv.URL)
+	ol, err := FetchOrgList(tc.Links, tc)
+	if assert.NoError(t, err) {
+		assert.Len(t, ol.Orgs, 1)
 	}
 }
 
@@ -54,17 +60,13 @@ func TestFetchOrg(t *testing.T) { // sanity check for serializing the org
 	}))
 	defer serv.Close()
 
-	fixedSessionXML := strings.Replace(sessionsXML, "https://us-california-1-3.vchs.vmware.com", serv.URL, -1)
-	var tc testXMLClient
-	if err := xml.Unmarshal([]byte(fixedSessionXML), &tc); assert.NoError(t, err) {
-		tc.Config = testConfig
-		fixedOrgListXML := strings.Replace(orgListXML, "https://us-california-1-3.vchs.vmware.com", serv.URL, -1)
-		var orgList OrgList
-		if err := xml.Unmarshal([]byte(fixedOrgListXML), &orgList); assert.NoError(t, err) {
-			o, err := orgList.FirstOrg(&tc)
-			if assert.NoError(t, err) {
-				assert.Len(t, o.Links, 15)
-			}
+	tc := newTestXMLClient(serv.URL)
+	fixedOrgListXML := strings.Replace(orgListXML, "https://us-california-1-3.vchs.vmware.com", serv.URL, -1)
+	var orgList OrgList
+	if err := xml.Unmarshal([]byte(fixedOrgListXML), &orgList); assert.NoError(t, err) {
+		o, err := orgList.FirstOrg(tc)
+		if assert.NoError(t, err) {
+			assert.Len(t, o.Links, 15)
 		}
 	}
 }

@@ -24,6 +24,8 @@ const (
 	MimeOrg = "application/vnd.vmware.vcloud.org+xml"
 	// MimeCatalog mime for catalog
 	MimeCatalog = "application/vnd.vmware.vcloud.catalog+xml"
+	// MimeCatalogItem mime for catalog item
+	MimeCatalogItem = "application/vnd.vmware.vcloud.catalogItem+xml"
 	// MimeVDC mime for a VDC
 	MimeVDC = "application/vnd.vmware.vcloud.vdc+xml"
 	// MimeInstantiateVAppTemplate mime fore instantiate VApp template params
