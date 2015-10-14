@@ -38,6 +38,7 @@ type Catalog struct {
 	VersionNumber int64       `xml:"VersionNumber"`
 }
 
+// ItemForName gets a named catalog item
 func (c *Catalog) ItemForName(name string, client api.XMLClient) (*CatalogItem, error) {
 	for _, p := range c.CatalogItems {
 		if p.Name == name {

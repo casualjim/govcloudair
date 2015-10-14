@@ -2,14 +2,7 @@ package vcloud
 
 import "encoding/xml"
 
-// VAppTemplate represents a vApp template.
-// Type: VAppTemplateType
-// Namespace: http://www.vmware.com/vcloud/v1.5
-// Description: Represents a vApp template.
-// Since: 0.9
-type VAppTemplate struct {
-	XMLName xml.Name `xml:"VAppTemplate"`
-
+type VAppTemplateFields struct {
 	// ResourceType
 	HREF string `xml:"href,attr,omitempty"`
 	Type string `xml:"type,attr,omitempty"`
@@ -37,8 +30,8 @@ type VAppTemplate struct {
 	OvfDescriptorUploaded string `xml:"ovfDescriptorUploaded,attr,omitempty"` // True if the OVF descriptor for this template has been uploaded.
 	GoldMaster            bool   `xml:"goldMaster,attr,omitempty"`            // True if this template is a gold master.
 	// Elements
-	Owner    *Owner         `xml:"Owner,omitempty"`       // vAppTemplate owner.
-	Children []VAppTemplate `xml:"Children>Vm,omitempty"` // Container for virtual machines included in this vApp template.
+	Owner    *Owner `xml:"Owner,omitempty"`       // vAppTemplate owner.
+	Children []VM   `xml:"Children>Vm,omitempty"` // Container for virtual machines included in this vApp template.
 
 	VAppScopedLocalID     string `xml:"VAppScopedLocalId"`               // A unique identifier for the Vm in the scope of the vApp template.
 	DefaultStorageProfile string `xml:"DefaultStorageProfile,omitempty"` // The name of the storage profile to be used for this object. The named storage profile must exist in the organization vDC that contains the object. If not specified, the default storage profile for the vDC is used.
@@ -53,6 +46,21 @@ type VAppTemplate struct {
 	//LeaseSettingsSection     *LeaseSettingsSection     `xml:"LeaseSettingsSection,omitempty"`
 	//CustomizationSection     *CustomizationSection     `xml:"CustomizationSection,omitempty"`
 	//Section ovf.Section `xml:"Section,omitempty"`
+}
+
+// VAppTemplate represents a vApp template.
+// Type: VAppTemplateType
+// Namespace: http://www.vmware.com/vcloud/v1.5
+// Description: Represents a vApp template.
+// Since: 0.9
+type VAppTemplate struct {
+	XMLName xml.Name `xml:"VAppTemplate"`
+	VAppTemplateFields
+}
+
+type VM struct {
+	XMLName xml.Name `xml:"Vm"`
+	VAppTemplateFields
 }
 
 // File represents a file to be transferred (uploaded or downloaded).
