@@ -38,13 +38,13 @@ type VAppTemplateFields struct {
 	DateCreated           string `xml:"DateCreated,omitempty"`           // Creation date/time of the template.
 
 	// FIXME: Upstream bug? Missing NetworkConfigSection, LeaseSettingSection and
-	// CustomizationSection at least, NetworkConnectionSection is required when
+	// GuestCustomizationSection at least, NetworkConnectionSection is required when
 	// using ComposeVApp action in the context of a Children VM (still
 	// referenced by VAppTemplateType).
-	NetworkConfigSection *NetworkConfigSection `xml:"NetworkConfigSection,omitempty"`
-	//NetworkConnectionSection *NetworkConnectionSection `xml:"NetworkConnectionSection,omitempty"`
-	//LeaseSettingsSection     *LeaseSettingsSection     `xml:"LeaseSettingsSection,omitempty"`
-	//CustomizationSection     *CustomizationSection     `xml:"CustomizationSection,omitempty"`
+	NetworkConfigSection      *NetworkConfigSection      `xml:"NetworkConfigSection,omitempty"`
+	NetworkConnectionSection  *NetworkConnectionSection  `xml:"NetworkConnectionSection,omitempty"`
+	LeaseSettingsSection      *LeaseSettingsSection      `xml:"LeaseSettingsSection,omitempty"`
+	GuestCustomizationSection *GuestCustomizationSection `xml:"GuestCustomizationSection,omitempty"`
 	//Section ovf.Section `xml:"Section,omitempty"`
 }
 

@@ -18,6 +18,15 @@ const (
 )
 
 const (
+	// NsOvf the ovf xml namespace url
+	NsOvf = "http://schemas.dmtf.org/ovf/envelope/1"
+	// NsXMLSchema the xml schema namespace url
+	NsXMLSchema = "http://www.w3.org/2001/XMLSchema-instance"
+	// NsVCloud vcloud xml namespace url
+	NsVCloud = "http://www.vmware.com/vcloud/v1.5"
+)
+
+const (
 	// MimeOrgList mime for org list
 	MimeOrgList = "application/vnd.vmware.vcloud.orgList+xml"
 	// MimeOrg mime for org

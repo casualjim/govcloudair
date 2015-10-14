@@ -117,15 +117,6 @@ type SubAllocation struct {
 	IPRanges    *IPRanges  `xml:"IpRanges,omitempty"`    // IP range sub allocated to the edge gateway.
 }
 
-// IPScopes represents a list of IP scopes.
-// Type: IpScopesType
-// Namespace: http://www.vmware.com/vcloud/v1.5
-// Description: Represents a list of IP scopes.
-// Since: 5.1
-type IPScopes struct {
-	IPScope IPScope `xml:"IpScope"` // IP scope.
-}
-
 // NetworkConfiguration the configuration applied to a network. This is an abstract base type. The concrete types include thos for vApp and Organization wide networks.
 // Type: NetworkConfigurationType
 // Namespace: http://www.vmware.com/vcloud/v1.5
@@ -136,7 +127,7 @@ type NetworkConfiguration struct {
 	Features                       *NetworkFeatures `xml:"Features,omitempty"`
 	ParentNetwork                  *Reference       `xml:"ParentNetwork,omitempty"`
 	FenceMode                      string           `xml:"FenceMode"`
-	IPScopes                       *IPScopes        `xml:"IpScopes,omitempty"`
+	IPScopes                       []IPScope        `xml:"IpScopes>IpScope,omitempty"`
 	RetainNetInfoAcrossDeployments bool             `xml:"RetainNetInfoAcrossDeployments"`
 	// TODO: Not Implemented
 	// RouterInfo                     RouterInfo           `xml:"RouterInfo,omitempty"`
@@ -187,8 +178,9 @@ type NetworkConnection struct {
 	NeedsCustomization      bool   `xml:"needsCustomization,attr,omitempty"` // True if this NIC needs customization.
 	ExternalIPAddress       string `xml:"ExternalIpAddress,omitempty"`       // If the network to which this NIC connects provides NAT services, the external address assigned to this NIC appears here.
 	IPAddress               string `xml:"IpAddress,omitempty"`               // IP address assigned to this NIC.
-	IPAddressAllocationMode string `xml:"IpAddressAllocationMode"`           // IP address allocation mode for this connection. One of: POOL (A static IP address is allocated automatically from a pool of addresses.) DHCP (The IP address is obtained from a DHCP service.) MANUAL (The IP address is assigned manually in the IpAddress element.) NONE (No IP addressing mode specified.)
 	MACAddress              string `xml:"MACAddress,omitempty"`              // MAC address associated with the NIC.
+	IPAddressAllocationMode string `xml:"IpAddressAllocationMode,omitempty"` // IP address allocation mode for this connection. One of: POOL (A static IP address is allocated automatically from a pool of addresses.) DHCP (The IP address is obtained from a DHCP service.) MANUAL (The IP address is assigned manually in the IpAddress element.) NONE (No IP addressing mode specified.)
+	NetworkAdapterType      string `xml:"NetworkAdapterType,omitempty"`
 }
 
 // NetworkConnectionSection the container for the network connections of this virtual machine.

@@ -2,6 +2,15 @@ package vcloud
 
 import "encoding/xml"
 
+// NewInstantiateVAppTemplateParams creates an instance of InstantiateVAppTemplateParams with xml namespaces filled out.
+func NewInstantiateVAppTemplateParams() *InstantiateVAppTemplateParams {
+	return &InstantiateVAppTemplateParams{
+		Ovf:   NsOvf,
+		Xsi:   NsXMLSchema,
+		Xmlns: NsVCloud,
+	}
+}
+
 // InstantiateVAppTemplateParams represents vApp template instantiation parameters.
 // Type: InstantiateVAppTemplateParamsType
 // Namespace: http://www.vmware.com/vcloud/v1.5

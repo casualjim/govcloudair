@@ -37,6 +37,10 @@ var testConfig = &api.Config{
 	Debug: true,
 }
 
+func rewriteXML(original, url string) string {
+	return strings.Replace(original, "https://us-california-1-3.vchs.vmware.com", url, -1)
+}
+
 func TestFetchOrgList(t *testing.T) { // sanity check for serializing the org list
 	serv := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		rw.Header().Set("Content-Type", MimeOrgList)
