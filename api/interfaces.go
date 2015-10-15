@@ -7,11 +7,28 @@ import (
 	"log"
 	"net/http"
 	"net/http/httputil"
+	"os"
 )
 
 // XMLClient a client capable of making XML requests to a vcloud API
 type XMLClient interface {
-	XMLRequest(string, string, string, interface{}, interface{}) error
+	XMLRequest(string, string, string, RequestBody, interface{}) error
+}
+
+// DefaultConfig the default api client config, filled out with variables from the environment
+func DefaultConfig() *Config {
+	baseURL := os.Getenv("VCLOUDAIR_BASEURL")
+	if baseURL == "" {
+		baseURL = "https://vca.vmware.com/api"
+	}
+	return &Config{
+		HTTP:       http.DefaultClient,
+		Username:   os.Getenv("VCLOUDAIR_USERNAME"),
+		Password:   os.Getenv("VCLOUDAIR_PASSWORD"),
+		Debug:      os.Getenv("VCLOUDAIR_DEBUG") != "",
+		BaseURL:    baseURL,
+		APIVersion: "5.11",
+	}
 }
 
 // Config is the client config for the vCloud Air API
@@ -38,8 +55,32 @@ type Config struct {
 	APIVersion string
 }
 
+// NewRequestBody creates a new request body interface implementation
+func NewRequestBody(contentType string, payload interface{}) RequestBody {
+	return &defaultRequestBody{contentType, payload}
+}
+
+type defaultRequestBody struct {
+	contentType string
+	payload     interface{}
+}
+
+func (d *defaultRequestBody) Payload() interface{} {
+	return d.payload
+}
+
+func (d *defaultRequestBody) ContentType() string {
+	return d.contentType
+}
+
+// RequestBody an interface representing a request body
+type RequestBody interface {
+	Payload() interface{}
+	ContentType() string
+}
+
 // XMLRequest uses the context to make XML based HTTP requests
-func XMLRequest(context *Config, method, url, tpe string, body, result interface{}) error {
+func XMLRequest(context *Config, method, url, tpe string, body RequestBody, result interface{}) error {
 	if context == nil {
 		return fmt.Errorf("context needs to be provided")
 	}
@@ -48,7 +89,7 @@ func XMLRequest(context *Config, method, url, tpe string, body, result interface
 	if body != nil {
 		buf := bytes.NewBuffer(nil)
 		enc := xml.NewEncoder(buf)
-		if err := enc.Encode(body); err != nil {
+		if err := enc.Encode(body.Payload()); err != nil {
 			return err
 		}
 		r, _ = http.NewRequest(method, url, buf)
@@ -56,7 +97,7 @@ func XMLRequest(context *Config, method, url, tpe string, body, result interface
 
 	r.Header.Set("Accept", tpe+";version="+context.APIVersion)
 	if body != nil {
-		r.Header.Set("Content-Type", "application/xml")
+		r.Header.Set("Content-Type", body.ContentType())
 	}
 
 	if context.Token != "" {

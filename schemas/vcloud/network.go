@@ -127,11 +127,20 @@ type NetworkConfiguration struct {
 	Features                       *NetworkFeatures `xml:"Features,omitempty"`
 	ParentNetwork                  *Reference       `xml:"ParentNetwork,omitempty"`
 	FenceMode                      string           `xml:"FenceMode"`
-	IPScopes                       []IPScope        `xml:"IpScopes>IpScope,omitempty"`
+	IPScopes                       *IPScopes        `xml:"IpScopes,omitempty"`
 	RetainNetInfoAcrossDeployments bool             `xml:"RetainNetInfoAcrossDeployments"`
 	// TODO: Not Implemented
 	// RouterInfo                     RouterInfo           `xml:"RouterInfo,omitempty"`
 	// SyslogServerSettings           SyslogServerSettings `xml:"SyslogServerSettings,omitempty"`
+}
+
+// IPScopes represents a list of IP scopes.
+// Type: IpScopesType
+// Namespace: http://www.vmware.com/vcloud/v1.5
+// Description: Represents a list of IP scopes.
+// Since: 5.1
+type IPScopes struct {
+	IPScope []IPScope `xml:"IpScope"` // IP scope.
 }
 
 // VAppNetworkConfiguration representa a vApp network configuration

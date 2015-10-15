@@ -1,5 +1,11 @@
 package vcloud
 
+import (
+	"fmt"
+
+	"github.com/vmware/govcloudair/api"
+)
+
 // A VDC represents the user view of an organization vDC.
 // Type: VdcType
 // Namespace: http://www.vmware.com/vcloud/v1.5
@@ -40,6 +46,20 @@ type VDC struct {
 	IsEnabled          bool                 `xml:"IsEnabled"`
 	VdcStorageProfiles []*Reference         `xml:"VdcStorageProfiles>VdcStorageProfile"`
 	VCPUInMHz          int64                `xml:"VCpuInMhz2,omitempty"`
+}
+
+// InstantiateVAppTemplate create a vapp from a template with the specified parameters
+func (v *VDC) InstantiateVAppTemplate(params *InstantiateVAppTemplateParams, client api.XMLClient) (*VApp, error) {
+	lnk := v.Links.ForType(MimeInstantiateVAppTemplate, RelAdd)
+	if lnk == nil {
+		return nil, fmt.Errorf("no InstantiateVAppTemplate link found for %q", v.ID)
+	}
+
+	var vApp VApp
+	if err := client.XMLRequest(HTTPPost, lnk.HREF, MimeVApp, api.NewRequestBody(lnk.Type, params), &vApp); err != nil {
+		return nil, err
+	}
+	return &vApp, nil
 }
 
 // SupportedHardwareVersions contains a list of VMware virtual hardware versions supported in this vDC.

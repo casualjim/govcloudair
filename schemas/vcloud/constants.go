@@ -41,6 +41,8 @@ const (
 	MimeVAppTemplate = "application/vnd.vmware.vcloud.vAppTemplate+xml"
 	// MimeInstantiateVAppTemplate mime fore instantiate VApp template params
 	MimeInstantiateVAppTemplate = "application/vnd.vmware.vcloud.instantiateVAppTemplateParams+xml"
+	// MimeVApp mime for a vApp
+	MimeVApp = "application/vnd.vmware.vcloud.vApp+xml"
 	// MimeQueryRecords mime for the query records
 	MimeQueryRecords = "application/vnd.vmware.vchs.query.records+xml"
 	// MimeAPIExtensibility mime for api extensibility

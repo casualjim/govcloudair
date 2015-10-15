@@ -1,6 +1,7 @@
 package vcloud
 
 import (
+	"encoding/xml"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -70,6 +71,41 @@ func TestFindVDC(t *testing.T) {
 		assert.Len(t, vdc.VdcStorageProfiles, 2)
 	}
 
+}
+
+func TestInstantiateVApp(t *testing.T) {
+	serv := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		rw.Header().Set("Content-Type", MimeVDC)
+		rw.WriteHeader(200)
+		rw.Write([]byte(vdcXML))
+	}))
+	defer serv.Close()
+
+	tc := newTestXMLClient(serv.URL)
+	var vdc VDC
+	if err := xml.Unmarshal([]byte(rewriteXML(vdcXML, serv.URL)), &vdc); assert.NoError(t, err) {
+		var templ VAppTemplate
+		if err := xml.Unmarshal([]byte(rewriteXML(vappTemplateXML, serv.URL)), &templ); assert.NoError(t, err) {
+			inst := NewInstantiateVAppTemplateParams()
+			inst.PowerOn = false
+			inst.AllEULAsAccepted = true
+			params := new(InstantiationParams)
+			nc := new(VAppNetworkConfiguration)
+			nc.NetworkName = "vAppNetwork"
+			nc.Configuration = new(NetworkConfiguration)
+			nc.Configuration.ParentNetwork = vdc.AvailableNetworks[0]
+			nc.Configuration.FenceMode = "bridged"
+			ncs := new(NetworkConfigSection)
+			ncs.Info = "Configuration parameters for logical networks"
+			ncs.NetworkConfig = nc
+			params.NetworkConfigSection = ncs
+			inst.InstantiationParams = params
+			inst.Source = templ.Ref()
+
+			vapp, err := vdc.InstantiateVAppTemplate(inst, tc)
+			assert.NoError(t, err)
+		}
+	}
 }
 
 var vdcXML = `

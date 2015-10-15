@@ -14,8 +14,6 @@ import (
 )
 
 const (
-	// BaseURL for vCloud Air
-	BaseURL = "https://vca.vmware.com/api"
 	// LoginPath for vCloud Air
 	LoginPath = "/iam/login"
 	// InstancesPath for vCloud Air
@@ -25,7 +23,11 @@ const (
 )
 
 // NewAuthenticatedSession create a new vCloud Air authenticated client
-func NewAuthenticatedSession(config api.Config) (*Session, error) {
+func NewAuthenticatedSession(config *api.Config) (*Session, error) {
+	if config == nil {
+		config = api.DefaultConfig()
+	}
+
 	if config.HTTP == nil {
 		config.HTTP = http.DefaultClient
 	}
@@ -59,7 +61,7 @@ func NewAuthenticatedSession(config api.Config) (*Session, error) {
 		return nil, err
 	}
 	result.AuthToken = resp.Header.Get("vchs-authorization")
-	result.Config = &config
+	result.Config = config
 
 	instances, err := result.instances()
 	if err != nil {
@@ -78,7 +80,7 @@ func NewAuthenticatedSession(config api.Config) (*Session, error) {
 		return nil, fmt.Errorf("unable to determine session url")
 	}
 
-	attrs.config = &config
+	attrs.config = config
 	return attrs.Authenticate()
 }
 
@@ -160,10 +162,10 @@ func (a *accountInstance) Attrs() *accountInstanceAttrs {
 }
 
 type accountInstanceAttrs struct {
-	OrgName       string      `json:"orgName"`
-	SessionURI    string      `json:"sessionUri"`
-	APIVersionURI string      `json:"apiVersionUri"`
-	config        *api.Config `json:"-"`
+	OrgName       string `json:"orgName"`
+	SessionURI    string `json:"sessionUri"`
+	APIVersionURI string `json:"apiVersionUri"`
+	config        *api.Config
 }
 
 func (a *accountInstanceAttrs) Authenticate() (*Session, error) {
@@ -195,12 +197,13 @@ func (a *accountInstanceAttrs) Authenticate() (*Session, error) {
 	if err := dec.Decode(&ses); err != nil {
 		return nil, err
 	}
-	ses.token = resp.Header.Get("x-vcloud-authorization")
 	ses.context = a.config
+	a.config.Token = resp.Header.Get("x-vcloud-authorization")
 
 	return &ses, nil
 }
 
+// Session represents an authenticated session for the vCloud Air API
 type Session struct {
 	// ResourceType
 	HREF  string          `xml:"href,attr,omitempty"`
@@ -213,15 +216,16 @@ type Session struct {
 	User   string `xml:"user,attr,omitempty"`
 	UserID string `xml:"userId,attr,omitempty"`
 
-	token   string
+	// token   string
 	context *api.Config
 }
 
+// OrgList get the org list from the API
 func (s *Session) OrgList() (*vcloud.OrgList, error) {
 	return vcloud.FetchOrgList(s.Links, s)
 }
 
 // XMLRequest makes HTTP request that have XML bodies and get XML results
-func (s *Session) XMLRequest(method, url, tpe string, body, result interface{}) error {
+func (s *Session) XMLRequest(method, url, tpe string, body api.RequestBody, result interface{}) error {
 	return api.XMLRequest(s.context, method, url, tpe, body, result)
 }
