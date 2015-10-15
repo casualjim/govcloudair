@@ -28,7 +28,7 @@ type testXMLClient struct {
 }
 
 // XMLRequest makes HTTP request that have XML bodies and get XML results
-func (s *testXMLClient) XMLRequest(method, url, tpe string, body, result interface{}) error {
+func (s *testXMLClient) XMLRequest(method, url, tpe string, body *api.RequestBody, result interface{}) error {
 	return api.XMLRequest(s.Config, method, url, tpe, body, result)
 }
 

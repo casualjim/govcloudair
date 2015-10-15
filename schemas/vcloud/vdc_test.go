@@ -75,9 +75,9 @@ func TestFindVDC(t *testing.T) {
 
 func TestInstantiateVApp(t *testing.T) {
 	serv := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-		rw.Header().Set("Content-Type", MimeVDC)
+		rw.Header().Set("Content-Type", MimeVApp)
 		rw.WriteHeader(200)
-		rw.Write([]byte(vdcXML))
+		rw.Write([]byte(vappXML))
 	}))
 	defer serv.Close()
 
@@ -87,7 +87,9 @@ func TestInstantiateVApp(t *testing.T) {
 		var templ VAppTemplate
 		if err := xml.Unmarshal([]byte(rewriteXML(vappTemplateXML, serv.URL)), &templ); assert.NoError(t, err) {
 			inst := NewInstantiateVAppTemplateParams()
-			inst.PowerOn = false
+			inst.Deploy = true
+			inst.PowerOn = true
+			inst.Name = "Linux FTP Server"
 			inst.AllEULAsAccepted = true
 			params := new(InstantiationParams)
 			nc := new(VAppNetworkConfiguration)
@@ -102,7 +104,7 @@ func TestInstantiateVApp(t *testing.T) {
 			inst.InstantiationParams = params
 			inst.Source = templ.Ref()
 
-			vapp, err := vdc.InstantiateVAppTemplate(inst, tc)
+			_, err := vdc.InstantiateVAppTemplate(inst, tc)
 			assert.NoError(t, err)
 		}
 	}

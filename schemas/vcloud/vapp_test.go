@@ -1,5 +1,54 @@
 package vcloud
 
+import (
+	"net/http"
+	"net/http/httptest"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
+
+func TestRefreshVapp(t *testing.T) {
+	serv := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		rw.Header().Set("Content-Type", MimeVApp)
+		rw.WriteHeader(200)
+		rw.Write([]byte(vappXML))
+	}))
+	defer serv.Close()
+
+	tc := newTestXMLClient(serv.URL)
+	vappOrig := &VApp{HREF: serv.URL + "/api/compute/api/vApp/vapp-vapp-uuid-goes-here", Type: "application/vnd.vmware.vcloud.vApp+xml"}
+	if err := vappOrig.Refresh(tc); assert.NoError(t, err) {
+		assert.Len(t, vappOrig.Tasks, 1)
+	}
+}
+
+var vappXML = `
+<VApp xmlns="http://www.vmware.com/vcloud/v1.5" ovfDescriptorUploaded="true" deployed="false" status="0" name="Linux FTP Server" id="urn:vcloud:vapp:vapp-uuid-goes-here" href="https://us-california-1-3.vchs.vmware.com/api/compute/api/vApp/vapp-vapp-uuid-goes-here" type="application/vnd.vmware.vcloud.vApp+xml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.vmware.com/vcloud/v1.5 http://us-california-1-3.vchs.vmware.com/api/compute/api/v1.5/schema/master.xsd">
+    <Link rel="down" href="https://us-california-1-3.vchs.vmware.com/api/compute/api/network/default-network-uuid-goes-here" name="default-routed-network" type="application/vnd.vmware.vcloud.vAppNetwork+xml"/>
+    <Link rel="down" href="https://us-california-1-3.vchs.vmware.com/api/compute/api/vApp/vapp-vapp-uuid-goes-here/controlAccess/" type="application/vnd.vmware.vcloud.controlAccess+xml"/>
+    <Link rel="up" href="https://us-california-1-3.vchs.vmware.com/api/compute/api/vdc/vdc-uuid-goes-here" type="application/vnd.vmware.vcloud.vdc+xml"/>
+    <Link rel="down" href="https://us-california-1-3.vchs.vmware.com/api/compute/api/vApp/vapp-vapp-uuid-goes-here/owner" type="application/vnd.vmware.vcloud.owner+xml"/>
+    <Link rel="down" href="https://us-california-1-3.vchs.vmware.com/api/compute/api/vApp/vapp-vapp-uuid-goes-here/metadata" type="application/vnd.vmware.vcloud.metadata+xml"/>
+    <Link rel="ovf" href="https://us-california-1-3.vchs.vmware.com/api/compute/api/vApp/vapp-vapp-uuid-goes-here/ovf" type="text/xml"/>
+    <Link rel="down" href="https://us-california-1-3.vchs.vmware.com/api/compute/api/vApp/vapp-vapp-uuid-goes-here/productSections/" type="application/vnd.vmware.vcloud.productSections+xml"/>
+    <Tasks>
+        <Task cancelRequested="false" expiryTime="2016-01-13T00:56:33.345Z" operation="Creating Virtual Application Linux FTP Server(vapp-uuid-goes-here)" operationName="vdcInstantiateVapp" serviceNamespace="com.vmware.vcloud" startTime="2015-10-15T00:56:33.345Z" status="queued" name="task" id="urn:vcloud:task:task-uuid-goes-here" href="https://us-california-1-3.vchs.vmware.com/api/compute/api/task/task-uuid-goes-here" type="application/vnd.vmware.vcloud.task+xml">
+            <Owner href="https://us-california-1-3.vchs.vmware.com/api/compute/api/vApp/vapp-vapp-uuid-goes-here" name="Linux FTP Server" type="application/vnd.vmware.vcloud.vApp+xml"/>
+            <User href="https://us-california-1-3.vchs.vmware.com/api/compute/api/admin/user/user-uuid-goes-here" name="user-email@somewhere.com" type="application/vnd.vmware.admin.user+xml"/>
+            <Organization href="https://us-california-1-3.vchs.vmware.com/api/compute/api/org/org-uuid-goes-here" name="org-name-uuid-goes-here" type="application/vnd.vmware.vcloud.org+xml"/>
+            <Progress>1</Progress>
+            <Details/>
+        </Task>
+    </Tasks>
+    <DateCreated>2015-10-15T00:56:32.920Z</DateCreated>
+    <Owner type="application/vnd.vmware.vcloud.owner+xml">
+        <User href="https://us-california-1-3.vchs.vmware.com/api/compute/api/admin/user/user-uuid-goes-here" name="user-email@somewhere.com" type="application/vnd.vmware.admin.user+xml"/>
+    </Owner>
+    <InMaintenanceMode>false</InMaintenanceMode>
+</VApp>
+`
+
 var vappTemplateXML = `
 <?xml version="1.0" encoding="UTF-8"?>
 <VAppTemplate xmlns="http://www.vmware.com/vcloud/v1.5" xmlns:ovf="http://schemas.dmtf.org/ovf/envelope/1" xmlns:vssd="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/CIM_VirtualSystemSettingData" xmlns:rasd="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/CIM_ResourceAllocationSettingData" xmlns:vmw="http://www.vmware.com/schema/ovf" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" goldMaster="false" ovfDescriptorUploaded="true" status="8" name="VMware Photon OS - Tech Preview 2" id="urn:vcloud:vapptemplate:vapptemplate-uuid-goes-her" href="https://us-california-1-3.vchs.vmware.com/api/compute/api/vAppTemplate/vappTemplate-vapptemplate-uuid-goes-her" type="application/vnd.vmware.vcloud.vAppTemplate+xml" xsi:schemaLocation="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/CIM_VirtualSystemSettingData http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2.22.0/CIM_VirtualSystemSettingData.xsd http://www.vmware.com/schema/ovf http://www.vmware.com/schema/ovf http://schemas.dmtf.org/ovf/envelope/1 http://schemas.dmtf.org/ovf/envelope/1/dsp8023_1.1.0.xsd http://www.vmware.com/vcloud/v1.5 http://us-california-1-3.vchs.vmware.com/api/compute/api/v1.5/schema/master.xsd http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/CIM_ResourceAllocationSettingData http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2.22.0/CIM_ResourceAllocationSettingData.xsd">

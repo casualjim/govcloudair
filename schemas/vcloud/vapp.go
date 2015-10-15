@@ -1,7 +1,12 @@
 package vcloud
 
-import "encoding/xml"
+import (
+	"encoding/xml"
 
+	"github.com/vmware/govcloudair/api"
+)
+
+// VAppTemplateFields contains the shared fields for a vapp template
 type VAppTemplateFields struct {
 	// ResourceType
 	HREF string `xml:"href,attr,omitempty"`
@@ -48,16 +53,6 @@ type VAppTemplateFields struct {
 	//Section ovf.Section `xml:"Section,omitempty"`
 }
 
-// Ref returns the reference object to this vapp template fields
-func (v *VAppTemplateFields) Ref() *Reference {
-	var ref Reference
-	ref.HREF = v.HREF
-	ref.Type = v.Type
-	ref.Name = v.Name
-	ref.ID = v.ID
-	return &ref
-}
-
 // VAppTemplate represents a vApp template.
 // Type: VAppTemplateType
 // Namespace: http://www.vmware.com/vcloud/v1.5
@@ -68,6 +63,21 @@ type VAppTemplate struct {
 	VAppTemplateFields
 }
 
+// Ref returns the reference object to this vapp template fields
+func (v *VAppTemplate) Ref() *Reference {
+	var ref Reference
+	ref.HREF = v.HREF
+	ref.Type = v.Type
+	ref.Name = v.Name
+	ref.ID = v.ID
+	return &ref
+}
+
+// VMTemplate represents a vApp child template.
+// Type: VAppTemplateType
+// Namespace: http://www.vmware.com/vcloud/v1.5
+// Description: Represents a vApp template.
+// Since: 0.9
 type VMTemplate struct {
 	XMLName xml.Name `xml:"Vm"`
 	VAppTemplateFields
@@ -131,6 +141,16 @@ type VApp struct {
 	Owner             *Owner `xml:"Owner,omitempty"`             // vApp owner.
 	InMaintenanceMode bool   `xml:"InMaintenanceMode,omitempty"` // True if this vApp is in maintenance mode. Prevents users from changing vApp metadata.
 	Children          []VM   `xml:"Children>Vm,omitempty"`       // Container for virtual machines included in this vApp.
+}
+
+// Refresh refreshes this vApp
+func (v *VApp) Refresh(client api.XMLClient) error {
+	var nw VApp
+	if err := client.XMLRequest(HTTPGet, v.HREF, v.Type, nil, &nw); err != nil {
+		return err
+	}
+	*v = nw
+	return nil
 }
 
 // VM represents a virtual machine

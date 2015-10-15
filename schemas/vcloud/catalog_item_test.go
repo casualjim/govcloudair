@@ -60,8 +60,8 @@ func TestFetchVAppTemplate(t *testing.T) {
 					if assert.NotNil(t, ncs.NetworkConfig.Configuration) {
 						ncfg := ncs.NetworkConfig.Configuration
 						assert.Equal(t, "isolated", ncfg.FenceMode)
-						if assert.NotEmpty(t, ncfg.IPScopes) {
-							ipsc := ncfg.IPScopes[0]
+						if assert.NotNil(t, ncfg.IPScopes) && assert.NotEmpty(t, ncfg.IPScopes.IPScope) {
+							ipsc := ncfg.IPScopes.IPScope[0]
 							assert.False(t, ipsc.IsInherited)
 							assert.Equal(t, "196.254.254.254", ipsc.Gateway)
 							assert.Equal(t, "255.255.0.0", ipsc.Netmask)

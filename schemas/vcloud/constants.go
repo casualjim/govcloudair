@@ -1,5 +1,39 @@
 package vcloud
 
+// Maps status Attribute Values for VAppTemplate, VApp, Vm, and Media Objects
+var VAppStatuses = map[int]string{
+	-1: "FAILED_CREATION",
+	0:  "UNRESOLVED",
+	1:  "RESOLVED",
+	2:  "DEPLOYED",
+	3:  "SUSPENDED",
+	4:  "POWERED_ON",
+	5:  "WAITING_FOR_INPUT",
+	6:  "UNKNOWN",
+	7:  "UNRECOGNIZED",
+	8:  "POWERED_OFF",
+	9:  "INCONSISTENT_STATE",
+	10: "MIXED",
+	11: "DESCRIPTOR_PENDING",
+	12: "COPYING_CONTENTS",
+	13: "DISK_CONTENTS_PENDING",
+	14: "QUARANTINED",
+	15: "QUARANTINE_EXPIRED",
+	16: "REJECTED",
+	17: "TRANSFER_TIMEOUT",
+	18: "VAPP_UNDEPLOYED",
+	19: "VAPP_PARTIALLY_DEPLOYED",
+}
+
+// Maps status Attribute Values for VDC Objects
+var VDCStatuses = map[int]string{
+	-1: "FAILED_CREATION",
+	0:  "NOT_READY",
+	1:  "READY",
+	2:  "UNKNOWN",
+	3:  "UNRECOGNIZED",
+}
+
 const (
 	// PublicCatalog Name
 	PublicCatalog = "Public Catalog"

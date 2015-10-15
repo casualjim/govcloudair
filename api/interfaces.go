@@ -12,7 +12,7 @@ import (
 
 // XMLClient a client capable of making XML requests to a vcloud API
 type XMLClient interface {
-	XMLRequest(string, string, string, RequestBody, interface{}) error
+	XMLRequest(string, string, string, *RequestBody, interface{}) error
 }
 
 // DefaultConfig the default api client config, filled out with variables from the environment
@@ -56,31 +56,18 @@ type Config struct {
 }
 
 // NewRequestBody creates a new request body interface implementation
-func NewRequestBody(contentType string, payload interface{}) RequestBody {
-	return &defaultRequestBody{contentType, payload}
+func NewRequestBody(contentType string, payload interface{}) *RequestBody {
+	return &RequestBody{ContentType: contentType, Payload: payload}
 }
 
-type defaultRequestBody struct {
-	contentType string
-	payload     interface{}
-}
-
-func (d *defaultRequestBody) Payload() interface{} {
-	return d.payload
-}
-
-func (d *defaultRequestBody) ContentType() string {
-	return d.contentType
-}
-
-// RequestBody an interface representing a request body
-type RequestBody interface {
-	Payload() interface{}
-	ContentType() string
+// RequestBody is the payload with a content type to submit to the API
+type RequestBody struct {
+	ContentType string
+	Payload     interface{}
 }
 
 // XMLRequest uses the context to make XML based HTTP requests
-func XMLRequest(context *Config, method, url, tpe string, body RequestBody, result interface{}) error {
+func XMLRequest(context *Config, method, url, tpe string, body *RequestBody, result interface{}) error {
 	if context == nil {
 		return fmt.Errorf("context needs to be provided")
 	}
@@ -89,7 +76,7 @@ func XMLRequest(context *Config, method, url, tpe string, body RequestBody, resu
 	if body != nil {
 		buf := bytes.NewBuffer(nil)
 		enc := xml.NewEncoder(buf)
-		if err := enc.Encode(body.Payload()); err != nil {
+		if err := enc.Encode(body.Payload); err != nil {
 			return err
 		}
 		r, _ = http.NewRequest(method, url, buf)
@@ -97,7 +84,7 @@ func XMLRequest(context *Config, method, url, tpe string, body RequestBody, resu
 
 	r.Header.Set("Accept", tpe+";version="+context.APIVersion)
 	if body != nil {
-		r.Header.Set("Content-Type", body.ContentType())
+		r.Header.Set("Content-Type", body.ContentType)
 	}
 
 	if context.Token != "" {

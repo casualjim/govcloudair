@@ -226,6 +226,6 @@ func (s *Session) OrgList() (*vcloud.OrgList, error) {
 }
 
 // XMLRequest makes HTTP request that have XML bodies and get XML results
-func (s *Session) XMLRequest(method, url, tpe string, body api.RequestBody, result interface{}) error {
+func (s *Session) XMLRequest(method, url, tpe string, body *api.RequestBody, result interface{}) error {
 	return api.XMLRequest(s.context, method, url, tpe, body, result)
 }
